@@ -25,10 +25,8 @@ check_dataset <- function(object) {
     if (length(errors) == 0) TRUE else errors
 }
 
-NCclass = "NCviz"
-#' S4 class for genes data
-#' Contains statistics and functions to communicate with a NaviCell API
-setClass(NCclass,
+#' S4 class for biological profiling data. Contains statistics and functions to communicate with a NaviCell API.
+setClass("NCviz",
      representation(
             nc_url="character",
             cell_type="character", # Name of the dataset
@@ -44,19 +42,20 @@ setClass(NCclass,
 #' @param nc_url URL of the NaviCell server
 #' @param cell_type Name of the dataset to pass to the NaviCell server
 #' @param cbio_data Data loaded with cBioStudy (incompatible with nc_data)
-#' @param nc_data Data under the NaviCell format, a list indexed by experiment type containing data arranged in a dataframe of dimensions genes * samples (incompatible with cbio_data)
+#' @param nc_data Data under the NaviCell format, a list indexed by experiment type containing data arranged in a dataframe with genes HUGO indentifiers as rownames and samples id as colnames (incompatible with cbio_data)
 #' @export
 #' @seealso cBioStudy
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
+#' @rdname NCviz-class
 NCviz <- function(nc_url="", cell_type="", cbio_data=list(), nc_data=list(), verbose=TRUE) {
-    return(new( NCclass, nc_url=nc_url, cell_type=cell_type, cbio_data=cbio_data, nc_data=nc_data, verbose=verbose ))
+    return(new( "NCviz", nc_url=nc_url, cell_type=cell_type, cbio_data=cbio_data, nc_data=nc_data, verbose=verbose ))
 }
 
 # TODO Determine if some data are recquired
 setMethod("initialize",
-          NCclass,
+          "NCviz",
             function(.Object, nc_url, cell_type, cbio_data, nc_data, verbose=TRUE) {
-                print(paste("Creation of an", NCclass, "object"))
+                print(paste("Creation of an", "NCviz", "object"))
                 .Object@nc_url = nc_url
                 .Object@cell_type = cell_type
                 .Object@cbio_data = cbio_data
@@ -95,7 +94,7 @@ setMethod("initialize",
 
 display_function="NCdisplay" # Display the data in a good manner in NaviCell
 setGeneric(display_function, function(obj){return(standardGeneric(display_function))})
-setMethod(display_function, NCclass,
+setMethod(display_function, "NCviz",
             function(obj) {
             # TODO display in NaviCell
             }
@@ -115,5 +114,5 @@ saveInFiles <- function(obj) {
     }
 }
 setGeneric("saveInFiles", saveInFiles)
-setMethod("saveInFiles", NCclass, saveInFiles)
+setMethod("saveInFiles", "NCviz", saveInFiles)
 
