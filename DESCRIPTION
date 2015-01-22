@@ -1,0 +1,9 @@
+Package: Rnc_mapping
+Type: Package
+Title: Maps biological data to a NaviCell map
+Version: 1.0
+Date: 2015-01-21
+Author: Mathurin Dorel
+Maintainer: Who to complain to <mathurin.dorel@curie.fr>
+Description: Rnc_mapping allows the import of various biological data (protein expression levels, CNV, mutations, ...) and maps them in a relevant maner on a NaviCell map.
+License: TODO
