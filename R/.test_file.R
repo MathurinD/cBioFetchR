@@ -5,12 +5,7 @@ conn = CGDS("http://www.cbioportal.org/")
 studies = getCancerStudies(conn)
 st_id = studies$cancer_study_id[1]
 
-# Select all patients
-#cases = getCaseLists(conn, st_id) # Use and display information ?
-ca_id = paste0(st_id, "_all")
-# Retrieve genetic profiles ids of all profiles
-profiles = getGeneticProfiles(conn, st_id)
-pr_id = profiles$genetic_profile_id
+genes_data = cBioStudy(st_id)
 
-genes_data = retrieveDataSet(conn, pr_id, ca_id)
+visualizer = NCviz(nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", cell_type="Acute Myeloid Leukemia", cbio_data=genes_data)
 

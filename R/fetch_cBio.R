@@ -17,7 +17,7 @@ getGenesList <- function(url="http://acsn.curie.fr/files/acsn_v1.0.gmt"){
     acsn_genes = unique(acsn_list)
 }
 
-#' Retrieve dataset from c-Bioportal (data.frame cases * genetic_profile)
+#' Retrieve a dataset from c-Bioportal (data.frame cases * genetic_profile)
 #' @param conn A CGDS connexion to c-Bioportal
 #' @param profile_id List of ids of the profiles we want to retrieve
 #' @param case_id List of ids of the cases we want to retrieve
@@ -27,18 +27,31 @@ getGenesList <- function(url="http://acsn.curie.fr/files/acsn_v1.0.gmt"){
 #' @seealso \code{\link{importDataSet}}, \code{\link{saveDataSet}}
 #' @author Mathurin Dorel \email{mathurin.dorel@curie.fr}
 # TODO replace by the url of the map
-retrieveDataSet <- function (conn, profile_id, case_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt") {
+cBioDataSet <- function (conn, profile_id, case_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt") {
     genes_data = list()
     for (gene in getGenesList(genes_url)) {
         dd = getProfileData(conn, gene, profile_id, case_id)
         if (nrow(dd) != 0) {
-            colnames(dd) = gsub( gsub("all$", "", case_id), "", colnames(dd) )
+            colnames(dd) = gsub( gsub("[^_]$", "", case_id), "", colnames(dd) )
             genes_data[[gene]] = dd
             print(paste(gene, "included"))
         } else {
             print(paste(gene, "not included"))
         }
     }
+    return(genes_data)
+}
+
+#' Retrieve data from a c-Bioportal study
+cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt") {
+    conn = CGDS("http://www.cbioportal.org/")
+
+    # Retrieve genetic profiles ids of all profiles
+    ca_id = paste0(study_id, "_all")
+    profiles = getGeneticProfiles(conn, study_id)
+    pr_id = profiles$genetic_profile_id
+
+    genes_data = cBioDataSet(conn, pr_id, ca_id, genes_url)
     return(genes_data)
 }
 
