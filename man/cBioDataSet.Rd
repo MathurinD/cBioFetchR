@@ -2,7 +2,7 @@
 % Please edit documentation in R/fetch_cBio.R
 \name{cBioDataSet}
 \alias{cBioDataSet}
-\title{Retrieve a dataset from c-Bioportal (data.frame cases * genetic_profile)}
+\title{Retrieve a dataset from c-Bioportal}
 \usage{
 cBioDataSet(conn, profile_id, case_id,
   genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
@@ -12,20 +12,20 @@ cBioDataSet(conn, profile_id, case_id,
 
 \item{profile_id}{List of ids of the profiles we want to retrieve}
 
-\item{case_id}{List of ids of the cases we want to retrieve}
+\item{case_id}{ID of the list of cases we want to retrieve}
 
-\item{genes_url}{URL pointing to where the list of genes of interest is}
+\item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
 }
 \value{
 A list of data.frames containing the data for each gene, for all combination experiment x sample
 }
 \description{
-Retrieve a dataset from c-Bioportal (data.frame cases * genetic_profile)
+Retrieve a dataset from c-Bioportal and select the genes that are present on the NaviCell map
 }
 \author{
 Mathurin Dorel \email{mathurin.dorel@curie.fr}
 }
 \seealso{
-\code{\link{importDataSet}}, \code{\link{saveDataSet}}
+\code{\link{cBioStudy}}, \code{\link{importDataSet}}, \code{\link{saveData}}
 }
 

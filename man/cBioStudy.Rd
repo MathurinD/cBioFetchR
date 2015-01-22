@@ -2,11 +2,25 @@
 % Please edit documentation in R/fetch_cBio.R
 \name{cBioStudy}
 \alias{cBioStudy}
-\title{Retrieve data from a c-Bioportal study}
+\title{Retrieve the data from a c-Bioportal study}
 \usage{
 cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
 }
+\arguments{
+\item{study_id}{ID of the study to retrieve.}
+
+\item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
+}
+\value{
+A list of data.frames containing the data for each gene, for all combination experiment x sample
+}
 \description{
-Retrieve data from a c-Bioportal study
+Retrieve from a c-Bioportal study and select genes that are present on the NaviCell map
+}
+\author{
+Mathurin Dorel \email{mathurin.dorel@curie.fr}
+}
+\seealso{
+\code{\link{cBioDataSet}}, \code{\link{importDataSet}}, \code{\link{saveData}}
 }
 

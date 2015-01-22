@@ -1,6 +1,5 @@
-
-library(methods)
-#library(RNaviCell)
+#' @import methods
+# @import RNaviCell
 
 check_dataset <- function(object) {
     errors = c() 
@@ -38,7 +37,7 @@ setClass("NCviz",
      validity=check_dataset
      )
 
-#' Constructor for the class NCviz, which provides functions to visualize profiling data on a NaviCell map
+#' Constructor for the class NCviz. NCviz objects provide functions to visualize profiling data on a NaviCell map
 #' @param nc_url URL of the NaviCell server
 #' @param cell_type Name of the dataset to pass to the NaviCell server
 #' @param cbio_data Data loaded with cBioStudy (incompatible with nc_data)
@@ -51,7 +50,7 @@ NCviz <- function(nc_url="", cell_type="", cbio_data=list(), nc_data=list(), ver
     return(new( "NCviz", nc_url=nc_url, cell_type=cell_type, cbio_data=cbio_data, nc_data=nc_data, verbose=verbose ))
 }
 
-# TODO Determine if some data are recquired
+# TODO Determine if some extra data are recquired
 setMethod("initialize",
           "NCviz",
             function(.Object, nc_url, cell_type, cbio_data, nc_data, verbose=TRUE) {
@@ -92,21 +91,32 @@ setMethod("initialize",
 #setGeneric(addData) # Add data tables
 #setGeneric()
 
-display_function="NCdisplay" # Display the data in a good manner in NaviCell
-setGeneric(display_function, function(obj){return(standardGeneric(display_function))})
-setMethod(display_function, "NCviz",
-            function(obj) {
-            # TODO display in NaviCell
-            }
-         )
+#' Display data on a NaviCell map
+#'
+#' Display the data on a NaviCell map using an optimized visualisation setup
+#' @param obj NCviz object
+#' @rdname NCdisplay-method
+NCdisplay <- function(obj) {
+}
+setGeneric("NCdisplay", NCdisplay)
+##' @export
+setMethod("NCdisplay", "NCviz", NCdisplay)
 
-#' Save the data in several files, one file per profiling method. Each file can then be imported into NaviCell.
-saveInFiles <- function(obj) {
+#' Save the data in several files.
+#'
+#' Save the data in several files, one .tsv file per profiling method. Each file can then be imported into NaviCell.
+#'
+#' @param obj NCviz object
+#' @param path Folder where the files must be save, can be used to append a prefix to the filename
+#' @param suffix Suffix appended to the filename
+#' @return Produces .tsv files, no R output.
+#' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
+#' @rdname saveInFiles-method
+saveInFiles <- function(obj, path="./", suffix="") {
     for (method in names(obj@nc_data)) {
         print(paste("Saving", method))
-        ff = open(paste0(gsub(" ", "_", obj@cell_type), "_", method, ".tsv"), "w")
+        ff = open(paste0(path, gsub(" ", "_", obj@cell_type), "_", method, suffix, ".tsv"), "w")
         writeLines(c("GENE", colnames(obj@nc_data[[method]])), sep="\t")
-
         for (gene in rownames(obj@nc_data[[method]])) {
             writeLines(c(gene, obj@nc_data[[method]][gene,]), sep="\t")
         }
@@ -114,5 +124,32 @@ saveInFiles <- function(obj) {
     }
 }
 setGeneric("saveInFiles", saveInFiles)
+#' @export
 setMethod("saveInFiles", "NCviz", saveInFiles)
+
+#' Save the data in one files.
+#'
+#' Save the data in a .txt files. The file cannot be directly exported to NaviCell but can be imported with the RncMapping package.
+#'
+#' @param obj NCviz object
+#' @param path Folder where the files must be save, can be used to append a prefix to the filename
+#' @param suffix Suffix appended to the filename
+#' @return Produces a .txt file, no R output.
+#' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
+#' @rdname saveData-method
+saveData <- function(obj, path="./", suffix="") {
+    ff = open(paste0(path, gsub(" ", "_", obj@cell_type), "_", method, suffix, ".tsv"), "w")
+    for (method in names(obj@nc_data)) {
+        print(paste("Saving", method))
+        writeLines(paste0("M ", method))
+        writeLines(c("GENE", colnames(obj@nc_data[[method]])), sep="\t")
+        for (gene in rownames(obj@nc_data[[method]])) {
+            writeLines(c(gene, obj@nc_data[[method]][gene,]), sep="\t")
+        }
+    }
+    close(ff)
+}
+setGeneric("saveData", saveData)
+#' @export
+setMethod("saveData", "NCviz", saveData)
 

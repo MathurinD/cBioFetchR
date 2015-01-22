@@ -1,3 +1,5 @@
+library(RncMapping)
+library(cgdsr)
 
 conn = CGDS("http://www.cbioportal.org/")
 
