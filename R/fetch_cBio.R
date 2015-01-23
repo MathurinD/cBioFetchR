@@ -1,5 +1,5 @@
 #' @import cgdsr
-#' @importFrom cgdsr CGDS getCancerStudies getProfileData getCaseList
+# @importFrom cgdsr CGDS getCancerStudies getProfileData getCaseLists
 #' @import RCurl
 
 # Gene lists of the ACSN maps (.owl for the map, .gmt for the gene list)
@@ -17,10 +17,30 @@ getGenesList <- function(url="http://acsn.curie.fr/files/acsn_v1.0.gmt"){
     acsn_genes = unique(acsn_list)
 }
 
+#' Create a connection to c-Bioportal API
+#' @param url URL of the c-Bioportal website
+#' @return A CGDS connexion object
+#' @export
+#' @seealso \code{\link{cgdsr::CGDS}}
+cBioConnect <- function(url="http://www.cbioportal.org/") {
+    return(CGDS(url))
+}
+
+#' List of c-Bioportal studies
+#'
+#' Get the list of c-Bioportal cancer studies
+#' @param conn A CGDS connexion object
+#' @return A data.frame with c-Bioportal studies ids (cancer_study_id), name (name) and description (description)
+#' @export
+#' @seealso \code{\link{cBioConnect}}, \code{\link{cgdsr::CGDS}}
+listStudies <- function(conn) {
+    return(getCancerStudies(conn))
+}
+
 #' Retrieve a dataset from c-Bioportal
 #'
 #' Retrieve a dataset from c-Bioportal and select the genes that are present on the NaviCell map
-#' @param conn A CGDS connexion to c-Bioportal
+#' @param conn A CGDS connexion object
 #' @param profile_id List of ids of the profiles we want to retrieve
 #' @param case_id ID of the list of cases we want to retrieve
 #' @param genes_url URL pointing to the list of genes of interest (in .gmt format)

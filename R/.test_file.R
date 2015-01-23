@@ -1,10 +1,9 @@
 library(RncMapping)
-library(cgdsr)
 
-conn = CGDS("http://www.cbioportal.org/")
+conn = cBioConnect()
 
 # Selection of the study id
-studies = getCancerStudies(conn)
+studies = listStudies(conn)
 st_id = studies$cancer_study_id[1]
 
 genes_data = cBioStudy(st_id)

@@ -8,7 +8,7 @@ cBioDataSet(conn, profile_id, case_id,
   genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
 }
 \arguments{
-\item{conn}{A CGDS connexion to c-Bioportal}
+\item{conn}{A CGDS connexion object}
 
 \item{profile_id}{List of ids of the profiles we want to retrieve}
 
