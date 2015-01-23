@@ -106,10 +106,12 @@ setMethod("NCdisplay", "NCviz", NCdisplay)
 saveInFilesF <- function(obj, path="./", suffix="") {
     for (method in names(obj@nc_data)) {
         print(paste("Saving", method))
-        ff = file(paste0(path, gsub(" ", "_", obj@cell_type), "_", method, suffix, ".tsv"), "w")
-        writeLines(c("GENE", colnames(obj@nc_data[[method]])), sep="\t")
+        ff = file(paste0(path, gsub(" ", "_", obj@cell_type), "_", method, ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
+        writeLines(c("GENE", colnames(obj@nc_data[[method]])), ff, sep="\t")
+        write("", ff)
         for (gene in rownames(obj@nc_data[[method]])) {
-            writeLines(c(gene, obj@nc_data[[method]][gene,]), sep="\t")
+            writeLines(c(gene, as.character(obj@nc_data[[method]][gene,])), ff, sep="\t")
+            write("", ff)
         }
         close(ff)
     }
@@ -129,13 +131,15 @@ setGeneric("saveInFiles", saveInFilesF)
 setMethod("saveInFiles", "NCviz", saveInFilesF)
 
 saveDataF <- function(obj, path="./", suffix="") {
-    ff = file(paste0(path, gsub(" ", "_", obj@cell_type), "_", suffix, ".tsv"), "w")
+    ff = file(paste0(path, gsub(" ", "_", obj@cell_type), ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
     for (method in names(obj@nc_data)) {
         print(paste("Saving", method))
-        writeLines(paste0("M ", method))
-        writeLines(c("GENE", colnames(obj@nc_data[[method]])), sep="\t")
+        writeLines(paste0("M ", method), ff)
+        writeLines(c("GENE", colnames(obj@nc_data[[method]])), ff, sep="\t")
+        write("", ff)
         for (gene in rownames(obj@nc_data[[method]])) {
-            writeLines(c(gene, obj@nc_data[[method]][gene,]), sep="\t")
+            writeLines(c(gene, as.character(obj@nc_data[[method]][gene,])), ff, sep="\t")
+            write("", ff)
         }
     }
     close(ff)

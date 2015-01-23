@@ -11,3 +11,6 @@ genes_data = cBioStudy(st_id, genes_url="file:///bioinfo/users/mdorel/ACSN_cBiop
 
 visualizer = NCviz(nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", cell_type="Acute Myeloid Leukemia", cbio_data=genes_data)
 
+saveData(visualizer)
+
+
