@@ -16,6 +16,6 @@ A data.frame with c-Bioportal studies ids (cancer_study_id), name (name) and des
 Get the list of c-Bioportal cancer studies
 }
 \seealso{
-\code{\link{cBioConnect}}, \code{\link{cgdsr::CGDS}}
+\code{\link{cBioConnect}}, \code{\link{cgdsr::CGDS}}, \code{\link{cgdsr::getCancerStudies}}
 }
 

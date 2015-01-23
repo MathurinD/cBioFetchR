@@ -32,7 +32,7 @@ cBioConnect <- function(url="http://www.cbioportal.org/") {
 #' @param conn A CGDS connexion object
 #' @return A data.frame with c-Bioportal studies ids (cancer_study_id), name (name) and description (description)
 #' @export
-#' @seealso \code{\link{cBioConnect}}, \code{\link{cgdsr::CGDS}}
+#' @seealso \code{\link{cBioConnect}}, \code{\link{cgdsr::CGDS}}, \code{\link{cgdsr::getCancerStudies}}
 listStudies <- function(conn) {
     return(getCancerStudies(conn))
 }

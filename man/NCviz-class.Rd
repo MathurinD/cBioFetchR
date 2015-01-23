@@ -4,7 +4,7 @@
 \name{NCviz-class}
 \alias{NCviz}
 \alias{NCviz-class}
-\title{S4 class for biological profiling data. Contains statistics and functions to communicate with a NaviCell API.}
+\title{Biological profilin data visualisation}
 \usage{
 NCviz(nc_url = "", cell_type = "", cbio_data = list(), nc_data = list(),
   verbose = TRUE)
@@ -19,7 +19,7 @@ NCviz(nc_url = "", cell_type = "", cbio_data = list(), nc_data = list(),
 \item{nc_data}{Data under the NaviCell format, a list indexed by experiment type containing data arranged in a dataframe with genes HUGO indentifiers as rownames and samples id as colnames (incompatible with cbio_data)}
 }
 \description{
-S4 class for biological profiling data. Contains statistics and functions to communicate with a NaviCell API.
+S4 class for biological profiling data visualisation. Contains statistics and functions to communicate with a NaviCell API.
 
 Constructor for the class NCviz. NCviz objects provide functions to visualize profiling data on a NaviCell map
 }

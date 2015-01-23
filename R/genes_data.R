@@ -24,7 +24,9 @@ check_dataset <- function(object) {
     if (length(errors) == 0) TRUE else errors
 }
 
-#' S4 class for biological profiling data. Contains statistics and functions to communicate with a NaviCell API.
+#' Biological profilin data visualisation
+#'
+#' S4 class for biological profiling data visualisation. Contains statistics and functions to communicate with a NaviCell API.
 setClass("NCviz",
      representation(
             nc_url="character",
@@ -65,7 +67,6 @@ setMethod("initialize",
                 # Copy data in the other format
                 if (length(.Object@nc_data) == 0) {
                     print("Converting form c-Bioportal format to NaviCell format")
-                    .Object@nc_data[[length(colnames(.Object@cbio_data[[1]]))]] = 0
                     for (experiment in colnames(.Object@cbio_data[[1]])) {
                         print(paste("Inserting experiment", experiment))
                         .Object@nc_data[[experiment]] = list()
@@ -91,17 +92,29 @@ setMethod("initialize",
 #setGeneric(addData) # Add data tables
 #setGeneric()
 
+NCdisplay <- function(obj) {
+}
+setGeneric("NCdisplay", NCdisplay)
 #' Display data on a NaviCell map
 #'
 #' Display the data on a NaviCell map using an optimized visualisation setup
 #' @param obj NCviz object
-#' @rdname NCdisplay-method
-NCdisplay <- function(obj) {
-}
-setGeneric("NCdisplay", NCdisplay)
+#' @rdname NCdisplay
 ##' @export
 setMethod("NCdisplay", "NCviz", NCdisplay)
 
+saveInFilesF <- function(obj, path="./", suffix="") {
+    for (method in names(obj@nc_data)) {
+        print(paste("Saving", method))
+        ff = file(paste0(path, gsub(" ", "_", obj@cell_type), "_", method, suffix, ".tsv"), "w")
+        writeLines(c("GENE", colnames(obj@nc_data[[method]])), sep="\t")
+        for (gene in rownames(obj@nc_data[[method]])) {
+            writeLines(c(gene, obj@nc_data[[method]][gene,]), sep="\t")
+        }
+        close(ff)
+    }
+}
+setGeneric("saveInFiles", saveInFilesF)
 #' Save the data in several files.
 #'
 #' Save the data in several files, one .tsv file per profiling method. Each file can then be imported into NaviCell.
@@ -111,34 +124,12 @@ setMethod("NCdisplay", "NCviz", NCdisplay)
 #' @param suffix Suffix appended to the filename
 #' @return Produces .tsv files, no R output.
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-#' @rdname saveInFiles-method
-saveInFiles <- function(obj, path="./", suffix="") {
-    for (method in names(obj@nc_data)) {
-        print(paste("Saving", method))
-        ff = open(paste0(path, gsub(" ", "_", obj@cell_type), "_", method, suffix, ".tsv"), "w")
-        writeLines(c("GENE", colnames(obj@nc_data[[method]])), sep="\t")
-        for (gene in rownames(obj@nc_data[[method]])) {
-            writeLines(c(gene, obj@nc_data[[method]][gene,]), sep="\t")
-        }
-        close(ff)
-    }
-}
-setGeneric("saveInFiles", saveInFiles)
 #' @export
-setMethod("saveInFiles", "NCviz", saveInFiles)
+#' @rdname saveInFiles
+setMethod("saveInFiles", "NCviz", saveInFilesF)
 
-#' Save the data in one files.
-#'
-#' Save the data in a .txt files. The file cannot be directly exported to NaviCell but can be imported with the RncMapping package.
-#'
-#' @param obj NCviz object
-#' @param path Folder where the files must be save, can be used to append a prefix to the filename
-#' @param suffix Suffix appended to the filename
-#' @return Produces a .txt file, no R output.
-#' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-#' @rdname saveData-method
-saveData <- function(obj, path="./", suffix="") {
-    ff = open(paste0(path, gsub(" ", "_", obj@cell_type), "_", method, suffix, ".tsv"), "w")
+saveDataF <- function(obj, path="./", suffix="") {
+    ff = file(paste0(path, gsub(" ", "_", obj@cell_type), "_", suffix, ".tsv"), "w")
     for (method in names(obj@nc_data)) {
         print(paste("Saving", method))
         writeLines(paste0("M ", method))
@@ -149,7 +140,18 @@ saveData <- function(obj, path="./", suffix="") {
     }
     close(ff)
 }
-setGeneric("saveData", saveData)
+setGeneric("saveData", saveDataF)
+#' Save the data in one files.
+#'
+#' Save the data in a .txt files. The file cannot be directly exported to NaviCell but can be imported with the RncMapping package.
+#'
+#' @name saveData
+#' @param obj NCviz object
+#' @param path Folder where the files must be save, can be used to append a prefix to the filename
+#' @param suffix Suffix appended to the filename
+#' @return Produces a .txt file, no R output.
+#' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
 #' @export
-setMethod("saveData", "NCviz", saveData)
+#' @rdname saveData
+setMethod("saveData", "NCviz", saveDataF)
 
