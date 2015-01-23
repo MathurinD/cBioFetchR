@@ -19,6 +19,14 @@ check_dataset <- function(object) {
     if (length(object@nc_url) == 0) {
         errors = c(errors, "A NaviCell map URL must be provided")
     }
+    if (no_cbio) {
+        if (nrow(object@annotations) != ncol(object@nc_data[[1]])) {
+            errors = c(errors, "There must be as many annotations as samples")
+        }
+    } else if (nrow(object@annotations) != nrow(object@cbio_data[[1]])) {
+        errors = c(errors, "There must be as many annotations as samples")
+    }
+
 
 
     if (length(errors) == 0) TRUE else errors
@@ -31,6 +39,7 @@ setClass("NCviz",
      representation(
             nc_url="character",
             cell_type="character", # Name of the dataset
+            annotations="list",
             cbio_data="list", # Data indexed by genes
             nc_data="list", # Data indexed by experiment type
             verbose="logical"
@@ -42,26 +51,28 @@ setClass("NCviz",
 #' Constructor for the class NCviz. NCviz objects provide functions to visualize profiling data on a NaviCell map
 #' @param nc_url URL of the NaviCell server
 #' @param cell_type Name of the dataset to pass to the NaviCell server
+#' @param annotations Cases annotations (clinical data)
 #' @param cbio_data Data loaded with cBioStudy (incompatible with nc_data)
 #' @param nc_data Data under the NaviCell format, a list indexed by experiment type containing data arranged in a dataframe with genes HUGO indentifiers as rownames and samples id as colnames (incompatible with cbio_data)
 #' @export
 #' @seealso cBioStudy
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
 #' @rdname NCviz-class
-NCviz <- function(nc_url="", cell_type="", cbio_data=list(), nc_data=list(), verbose=TRUE) {
-    return(new( "NCviz", nc_url=nc_url, cell_type=cell_type, cbio_data=cbio_data, nc_data=nc_data, verbose=verbose ))
+NCviz <- function(nc_url="", cell_type="", annotations=list(), cbio_data=list(), nc_data=list(), verbose=TRUE) {
+    return(new( "NCviz", nc_url=nc_url, cell_type=cell_type, annotations=annotations, cbio_data=cbio_data, nc_data=nc_data, verbose=verbose ))
 }
 
 # TODO Determine if some extra data are recquired
 setMethod("initialize",
           "NCviz",
-            function(.Object, nc_url, cell_type, cbio_data, nc_data, verbose=TRUE) {
+            function(.Object, nc_url, cell_type, annotations, cbio_data, nc_data, verbose=TRUE) {
                 print(paste("Creation of an", "NCviz", "object"))
                 .Object@nc_url = nc_url
                 .Object@cell_type = cell_type
                 .Object@cbio_data = cbio_data
                 .Object@nc_data = nc_data
                 .Object@verbose = verbose
+                .Object@annotations = annotations
                 validObject(.Object) # Validate object
 
                 # Copy data in the other format
@@ -84,6 +95,15 @@ setMethod("initialize",
                     }
                 }
 
+                patients = colnames(.Object@nc_data[[1]])
+                group_all = data.frame( "all"=rep(1, length(patients)) )
+                rownames(group_all) = patients
+                if (length(annotations) == 0) {
+                    .Object@annotations = group_all
+                } else {
+                    .Object@annotations = data.frame(group_all, annotations)
+                }
+
                 return(.Object)
             }
           )
@@ -103,23 +123,42 @@ setGeneric("NCdisplay", NCdisplay)
 ##' @export
 setMethod("NCdisplay", "NCviz", NCdisplay)
 
+toFileName <- function(string) {
+    string = gsub(",? ", "_", string)
+    string = gsub("\\(|\\)", "", string)
+    string = gsub(",", "_", string)
+    return(string)
+}
+
+tabLine <- function(string, ff) {
+    writeLines(string, ff, sep="\t")
+    write("", ff)
+}
+
 saveInFilesF <- function(obj, path="./", suffix="") {
+    # Save data
     for (method in names(obj@nc_data)) {
         print(paste("Saving", method))
-        ff = file(paste0(path, gsub(" ", "_", obj@cell_type), "_", method, ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
-        writeLines(c("GENE", colnames(obj@nc_data[[method]])), ff, sep="\t")
-        write("", ff)
+        ff = file(paste0(path, toFileName(obj@cell_type), "_", method, ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
+        tabLine(c("GENE", colnames(obj@nc_data[[method]])), ff)
         for (gene in rownames(obj@nc_data[[method]])) {
-            writeLines(c(gene, as.character(obj@nc_data[[method]][gene,])), ff, sep="\t")
-            write("", ff)
+            tabLine(c(gene, as.character(obj@nc_data[[method]][gene,])), ff)
         }
         close(ff)
     }
+    # Save annotations
+    ff = file(paste0(path, toFileName(obj@cell_type), "_Annotations", ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
+    tabLine(c("NAME", colnames(obj@annotations)), ff)
+    for (spl in rownames(obj@annotations)) {
+        tabLine(c(spl, as.character(obj@annotations[spl,])), ff)
+    }
+    close(ff)
 }
 setGeneric("saveInFiles", saveInFilesF)
 #' Save the data in several files.
 #'
-#' Save the data in several files, one .tsv file per profiling method. Each file can then be imported into NaviCell.
+#' Save the data from a NCviz object in several files, one .tsv file per profiling method. Each file can then be imported into NaviCell.
+#' Also produces a file with annotations of all samples
 #'
 #' @param obj NCviz object
 #' @param path Folder where the files must be save, can be used to append a prefix to the filename
@@ -130,17 +169,23 @@ setGeneric("saveInFiles", saveInFilesF)
 #' @rdname saveInFiles
 setMethod("saveInFiles", "NCviz", saveInFilesF)
 
+
 saveDataF <- function(obj, path="./", suffix="") {
-    ff = file(paste0(path, gsub(" ", "_", obj@cell_type), ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
+    ff = file(paste0(path, toFileName(obj@cell_type), ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
     for (method in names(obj@nc_data)) {
+        # Save data
         print(paste("Saving", method))
         writeLines(paste0("M ", method), ff)
-        writeLines(c("GENE", colnames(obj@nc_data[[method]])), ff, sep="\t")
-        write("", ff)
+        tabLine(colnames(obj@nc_data[[method]]), ff)
         for (gene in rownames(obj@nc_data[[method]])) {
-            writeLines(c(gene, as.character(obj@nc_data[[method]][gene,])), ff, sep="\t")
-            write("", ff)
+            tabLine(c(gene, as.character(obj@nc_data[[method]][gene,])), ff)
         }
+    }
+    # Save annotations
+    writeLines(paste0("Annotations"), ff)
+    tabLine(colnames(obj@annotations), ff)
+    for (spl in rownames(obj@annotations)) {
+        tabLine(c(spl, as.character(obj@annotations[spl,])), ff)
     }
     close(ff)
 }

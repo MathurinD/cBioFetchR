@@ -6,13 +6,15 @@
 \alias{NCviz-class}
 \title{Biological profilin data visualisation}
 \usage{
-NCviz(nc_url = "", cell_type = "", cbio_data = list(), nc_data = list(),
-  verbose = TRUE)
+NCviz(nc_url = "", cell_type = "", annotations = list(),
+  cbio_data = list(), nc_data = list(), verbose = TRUE)
 }
 \arguments{
 \item{nc_url}{URL of the NaviCell server}
 
 \item{cell_type}{Name of the dataset to pass to the NaviCell server}
+
+\item{annotations}{Cases annotations (clinical data)}
 
 \item{cbio_data}{Data loaded with cBioStudy (incompatible with nc_data)}
 

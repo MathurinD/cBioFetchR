@@ -4,7 +4,8 @@
 \alias{cBioStudy}
 \title{Retrieve the data from a c-Bioportal study}
 \usage{
-cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
+cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
+  nc_url = "http://acsn.curie.fr/files/acsn_v1.0.owl", name = "")
 }
 \arguments{
 \item{study_id}{ID of the study to retrieve.}
@@ -12,7 +13,7 @@ cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
 \item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
 }
 \value{
-A list of data.frames containing the data for each gene, for all combination experiment x sample
+An NCviz object containing the data of the study
 }
 \description{
 Retrieve from a c-Bioportal study and select genes that are present on the NaviCell map

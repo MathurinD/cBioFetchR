@@ -18,7 +18,8 @@
 Produces .tsv files, no R output.
 }
 \description{
-Save the data in several files, one .tsv file per profiling method. Each file can then be imported into NaviCell.
+Save the data from a NCviz object in several files, one .tsv file per profiling method. Each file can then be imported into NaviCell.
+Also produces a file with annotations of all samples
 }
 \author{
 Mathurin Dorel \email{mathurin.dorel@curie.fr}
