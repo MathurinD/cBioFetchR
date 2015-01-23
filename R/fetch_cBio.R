@@ -68,16 +68,40 @@ cBioDataSet <- function (conn, profile_id, case_id, genes_url="http://acsn.curie
     return(genes_data)
 }
 
-#' Retrieve the data from a c-Bioportal study
+#' Create NCViz object from a c-Bioportal study
 #'
-#' Retrieve from a c-Bioportal study and select genes that are present on the NaviCell map
+#' Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
 #' @param study_id ID of the study to retrieve.
 #' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
+#' @param nc_url URL of the NaviCell map
+#' @param name Name of the dataset. If not provided, the name of the study provided by cBioPortal will be used
 #' @return An NCviz object containing the data of the study
 #' @export
-#' @seealso \code{\link{cBioDataSet}}, \code{\link{importDataSet}}, \code{\link{saveData}}
+#' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioStudy}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", name="") {
+cBioNCviz <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", name="") {
+    all_data = cBioStudy(study_id, genes_url)
+    clinical_data = all_data$annotations
+    genes_data = all_data$data
+
+    studies = listStudies(conn)
+    if (!study_id %in% studies$cancer_study_id) { stop(paste("The study", study_id, "does not exits on cBioPortal")) }
+    if (name == "") { name = studies$name[which(studies$cancer_study_id==study_id)] }
+    ncviz = NCviz(nc_url=nc_url, cell_type=name, cbio_data=genes_data, annotations=clinical_data)
+
+    return(ncviz)
+}
+
+#' Retrieve data and annotations from a c-Bioportal study
+#'
+#' Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
+#' @param study_id ID of the study to retrieve.
+#' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
+#' @return A list containing the genes data as a list of dataframe (sample_id * profiling method, list indexed by gene names), and the annotations in a dataframe (sample_id * annotation_type)
+#' @export
+#' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioNCviz}}
+#' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
+cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt") {
     conn = CGDS("http://www.cbioportal.org/")
 
     # Retrieve genetic profiles ids of all profiles
@@ -88,12 +112,7 @@ cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.
     clinical_data = getClinicalData(conn, ca_id)
     genes_data = cBioDataSet(conn, pr_id, ca_id, genes_url)
 
-    studies = listStudies(conn)
-    if (!study_id %in% studies$cancer_study_id) { stop(paste("The study", study_id, "does not exits on cBioPortal")) }
-    if (name == "") { name = studies$name[which(studies$cancer_study_id==study_id)] }
-    ncviz = NCviz(nc_url=nc_url, cell_type=name, cbio_data=genes_data, annotations=clinical_data)
-
-    return(ncviz)
+    return(list(data=genes_data, annotations=clinical_data))
 }
 
 # Save data set in a file, avoid having to download everything every time
