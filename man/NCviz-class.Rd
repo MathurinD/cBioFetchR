@@ -7,7 +7,8 @@
 \title{Biological profilin data visualisation}
 \usage{
 NCviz(nc_url = "", cell_type = "", annotations = list(),
-  cbio_data = list(), nc_data = list(), verbose = TRUE)
+  cbio_gene_data = list(), cbio_profile_data = list(), nc_data = list(),
+  verbose = TRUE)
 }
 \arguments{
 \item{nc_url}{URL of the NaviCell server}
@@ -16,9 +17,9 @@ NCviz(nc_url = "", cell_type = "", annotations = list(),
 
 \item{annotations}{Cases annotations (clinical data)}
 
-\item{cbio_data}{Data loaded with cBioStudy (incompatible with nc_data)}
-
 \item{nc_data}{Data under the NaviCell format, a list indexed by experiment type containing data arranged in a dataframe with genes HUGO indentifiers as rownames and samples id as colnames (incompatible with cbio_data)}
+
+\item{cbio_data}{Data loaded with cBioStudy (incompatible with nc_data)}
 }
 \description{
 S4 class for biological profiling data visualisation. Contains statistics and functions to communicate with a NaviCell API.

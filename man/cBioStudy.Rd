@@ -4,12 +4,15 @@
 \alias{cBioStudy}
 \title{Retrieve data and annotations from a c-Bioportal study}
 \usage{
-cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
+cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
+  method = "genes")
 }
 \arguments{
 \item{study_id}{ID of the study to retrieve.}
 
 \item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
+
+\item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.}
 }
 \value{
 A list containing the genes data as a list of dataframe (sample_id * profiling method, list indexed by gene names), and the annotations in a dataframe (sample_id * annotation_type)

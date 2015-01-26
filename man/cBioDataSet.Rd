@@ -4,23 +4,25 @@
 \alias{cBioDataSet}
 \title{Retrieve a dataset from c-Bioportal}
 \usage{
-cBioDataSet(conn, profile_id, case_id,
-  genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
+cBioDataSet(conn, profile_ids, case_id,
+  genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt", method = method)
 }
 \arguments{
 \item{conn}{A CGDS connexion object}
 
-\item{profile_id}{List of ids of the profiles we want to retrieve}
-
 \item{case_id}{ID of the list of cases we want to retrieve}
 
 \item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
+
+\item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.}
+
+\item{profile_id}{List of ids of the profiles we want to retrieve}
 }
 \value{
 A list of data.frames containing the data for each gene, for all combination experiment x sample
 }
 \description{
-Retrieve a dataset from c-Bioportal and select the genes that are present on the NaviCell map
+Retrieve a dataset from c-Bioportal for all genes that are present on the NaviCell map. Displays whether the NaviCell map genes have been included or not.
 }
 \author{
 Mathurin Dorel \email{mathurin.dorel@curie.fr}
