@@ -2,7 +2,7 @@
 % Please edit documentation in R/fetch_cBio.R
 \name{cBioStudy}
 \alias{cBioStudy}
-\title{Retrieve the data from a c-Bioportal study}
+\title{Retrieve data and annotations from a c-Bioportal study}
 \usage{
 cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
 }
@@ -12,15 +12,15 @@ cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt")
 \item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
 }
 \value{
-A list of data.frames containing the data for each gene, for all combination experiment x sample
+A list containing the genes data as a list of dataframe (sample_id * profiling method, list indexed by gene names), and the annotations in a dataframe (sample_id * annotation_type)
 }
 \description{
-Retrieve from a c-Bioportal study and select genes that are present on the NaviCell map
+Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
 }
 \author{
 Mathurin Dorel \email{mathurin.dorel@curie.fr}
 }
 \seealso{
-\code{\link{cBioDataSet}}, \code{\link{importDataSet}}, \code{\link{saveData}}
+\code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioNCviz}}
 }
 

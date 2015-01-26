@@ -3,6 +3,7 @@
 export(NCviz)
 export(cBioConnect)
 export(cBioDataSet)
+export(cBioNCviz)
 export(cBioStudy)
 export(listStudies)
 exportMethods(NCdisplay)

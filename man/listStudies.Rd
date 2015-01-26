@@ -4,7 +4,7 @@
 \alias{listStudies}
 \title{List of c-Bioportal studies}
 \usage{
-listStudies(conn)
+listStudies(conn = "http://www.cbioportal.org/")
 }
 \arguments{
 \item{conn}{A CGDS connexion object}
