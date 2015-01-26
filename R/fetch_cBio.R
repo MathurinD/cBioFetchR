@@ -59,7 +59,7 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curi
         for (gene in getGenesList(genes_url)) {
             dd = getProfileData(conn, gene, profile_ids, case_id)
             if (nrow(dd) != 0) {
-                colnames(dd) = gsub( gsub("[^_]$", "", case_id), "", colnames(dd) )
+                colnames(dd) = gsub( paste0(st_id, "_"), "", colnames(dd) )
                 genes_data[[gene]] = dd
                 print(paste(gene, "included"))
             } else {
@@ -72,7 +72,7 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curi
         profiles_data = list()
         genes = getGenesList(genes_url)
         for (prof in profile_ids) {
-            profiles_data[[prof]] = t(getProfileData(conn, genes, prof, case_id))
+            profiles_data[[ gsub(paste0(st_id, "_"), "", prof) ]] = t(getProfileData(conn, genes, prof, case_id))
         }
         print("------------------ Import finished -------------------------")
         return(profiles_data)
