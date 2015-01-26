@@ -72,7 +72,9 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curi
         profiles_data = list()
         genes = getGenesList(genes_url)
         for (prof in profile_ids) {
-            profiles_data[[ gsub(paste0(st_id, "_"), "", prof) ]] = t(getProfileData(conn, genes, prof, case_id))
+            pr_code = gsub(paste0(st_id, "_"), "", prof)
+            print(paste("Importing", pr_code, "data"))
+            profiles_data[[pr_code]] = t(getProfileData(conn, genes, prof, case_id))
         }
         print("------------------ Import finished -------------------------")
         return(profiles_data)
