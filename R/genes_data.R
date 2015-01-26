@@ -130,28 +130,17 @@ toFileName <- function(string) {
     return(string)
 }
 
-tabLine <- function(string, ff) {
-    writeLines(string, ff, sep="\t")
-    write("", ff)
-}
-
 saveInFilesF <- function(obj, path="./", suffix="") {
     # Save data
     for (method in names(obj@nc_data)) {
         print(paste("Saving", method))
         ff = file(paste0(path, toFileName(obj@cell_type), "_", method, ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
-        tabLine(c("GENE", colnames(obj@nc_data[[method]])), ff)
-        for (gene in rownames(obj@nc_data[[method]])) {
-            tabLine(c(gene, as.character(obj@nc_data[[method]][gene,])), ff)
-        }
+        write.table(obj@nc_data[[method]], ff, sep="\t")
         close(ff)
     }
     # Save annotations
     ff = file(paste0(path, toFileName(obj@cell_type), "_Annotations", ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
-    tabLine(c("NAME", colnames(obj@annotations)), ff)
-    for (spl in rownames(obj@annotations)) {
-        tabLine(c(spl, as.character(obj@annotations[spl,])), ff)
-    }
+    write.table(obj@annotations, ff, sep="\t")
     close(ff)
 }
 setGeneric("saveInFiles", saveInFilesF)
@@ -176,17 +165,11 @@ saveDataF <- function(obj, path="./", suffix="") {
         # Save data
         print(paste("Saving", method))
         writeLines(paste0("M ", method), ff)
-        tabLine(colnames(obj@nc_data[[method]]), ff)
-        for (gene in rownames(obj@nc_data[[method]])) {
-            tabLine(c(gene, as.character(obj@nc_data[[method]][gene,])), ff)
-        }
+        write.table(obj@nc_data[[method]], ff, sep="\t")
     }
     # Save annotations
     writeLines(paste0("Annotations"), ff)
-    tabLine(colnames(obj@annotations), ff)
-    for (spl in rownames(obj@annotations)) {
-        tabLine(c(spl, as.character(obj@annotations[spl,])), ff)
-    }
+    write.table(obj@annotations, ff, sep="\t")
     close(ff)
 }
 setGeneric("saveData", saveDataF)
