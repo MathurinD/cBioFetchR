@@ -65,8 +65,10 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
 #' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
 #' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.
 #' @return The format depends on the method :
-#' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
-#' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' \itemize {
+#'  \item "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
+#'  \item "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' }
 #' @export
 #' @seealso \code{\link{cBioStudy}}, \code{\link{importDataSet}}, \code{\link{saveData}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
@@ -137,8 +139,10 @@ cBioNCviz <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.
 #' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
 #' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.
 #' @return A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :
-#' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
-#' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' \itemize {
+#'  \item "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
+#'  \item "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' }
 #' @export
 #' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioNCviz}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
@@ -226,7 +230,6 @@ importStudy <- function(fname) {
             colnames(annotations) = annotations_names
         }
     }
-
     return(list(data=all_data, annotations=annotations))
 }
 

@@ -16,8 +16,10 @@ cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
 }
 \value{
 A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :
-"genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
-"profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+\itemize {
+ \item "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
+ \item "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+}
 }
 \description{
 Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
