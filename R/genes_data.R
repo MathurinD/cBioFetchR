@@ -29,8 +29,10 @@ check_dataset <- function(object) {
             errors = c(errors, "There must be as many annotations as samples")
         }
     } else if (cbio_profile) {
+        if (nrow(object@annotations) != nrow(object@cbio_profile_data[[1]])) {
+            errors = c(errors, "There must be as many annotations as samples")
+        }
     }
-
 
 
     if (length(errors) == 0) TRUE else errors
@@ -157,7 +159,7 @@ setGeneric("saveInFiles", saveInFilesF)
 #' Save the data in several files.
 #'
 #' Save the data from a NCviz object in several files, one .tsv file per profiling method. Each file can then be imported into NaviCell.
-#' Also produces a file with annotations of all samples
+#' Also produces a file with annotations of all samples, also importable in NaviCell.
 #'
 #' @param obj NCviz object
 #' @param path Folder where the files must be save, can be used to append a prefix to the filename
@@ -170,7 +172,7 @@ setMethod("saveInFiles", "NCviz", saveInFilesF)
 
 
 saveDataF <- function(obj, path="./", suffix="") {
-    ff = file(paste0(path, toFileName(obj@cell_type), ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
+    ff = file(paste0(path, toFileName(obj@cell_type), ifelse(suffix=="", "", "_"), suffix, ".txt"), "w")
     for (method in names(obj@nc_data)) {
         # Save data
         print(paste("Saving", method))
@@ -178,14 +180,14 @@ saveDataF <- function(obj, path="./", suffix="") {
         write.table(obj@nc_data[[method]], ff, sep="\t")
     }
     # Save annotations
-    writeLines(paste0("Annotations"), ff)
+    writeLines(paste0("ANNOTATIONS"), ff)
     write.table(obj@annotations, ff, sep="\t")
     close(ff)
 }
 setGeneric("saveData", saveDataF)
 #' Save the data in one files.
 #'
-#' Save the data in a .txt files. The file cannot be directly exported to NaviCell but can be imported with the RncMapping package.
+#' Save the data in a .txt files. The file cannot be directly exported to NaviCell but can be imported with the RncMapping package. For easily commucating data.
 #'
 #' @name saveData
 #' @param obj NCviz object

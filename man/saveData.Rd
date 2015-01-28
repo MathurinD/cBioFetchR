@@ -18,7 +18,7 @@
 Produces a .txt file, no R output.
 }
 \description{
-Save the data in a .txt files. The file cannot be directly exported to NaviCell but can be imported with the RncMapping package.
+Save the data in a .txt files. The file cannot be directly exported to NaviCell but can be imported with the RncMapping package. For easily commucating data.
 }
 \author{
 Mathurin Dorel \email{mathurin.dorel@curie.fr}
