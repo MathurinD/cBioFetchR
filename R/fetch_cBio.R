@@ -28,7 +28,7 @@ cBioConnect <- function(url="http://www.cbioportal.org/") {
 
 #' List of c-Bioportal studies
 #'
-#' Get the list of c-Bioportal cancer studies
+#' Get the list of c-Bioportal cancer studies. Allow the specification of cancer types to limit the search.
 #' @param conn A CGDS connexion object
 #' @param query A string specifying a subtype of cancer to look for (leave to "all" to list all available studies)
 #' @param case_sensitive A boolean specifying whether the query should be case sensitive (does not apply if query == "all")
@@ -47,9 +47,9 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
     } else {
         result = data.frame()
 
-        for (rr in rownames(studies)) {
+        for ( rr in as.numeric(rownames(studies)) ) {
             if ( (case_sensitive && grepl(query, studies$name[rr])) || grepl(tolower(query), tolower(studies$name[rr])) ) {
-                result = cbind(result, studies[rr,])
+                result = rbind(result, studies[rr,])
             }
         }
         return(result)
@@ -163,13 +163,13 @@ getLine <- function(ll, split_char="\t") {
 #' Import a study from a file
 #'
 #' Import a study from a file with its annotations. A study consists of several experiments on the same set of genes and samples.
-#' For a study on m patients and n genes, the file must be formated as "M experiment_name", followed by a line with the list of samples ids, followed by n lines "genes_name data"
-#' The annotations start by "ANNOTATIONS study_name", followed by a line with the list of annotations names, followed by m lines "sample_name annotation"
+#' For a study on m patients and n genes, the file must be formated as "M experiment_name", followed by a line with the list of samples ids, followed by n lines "genes_name data".
+#' The annotations start by "ANNOTATIONS study_name", followed by a line with the list of annotations names, followed by m lines "sample_name annotation".
 #' @param fname Name of the file
-#' @return A list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' @return A list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type).
 #' @export
+#' @seealso \code{\link{cBioStudy}}, \code{\link{saveData}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-#' @seealso \code{\link{cBioStudy}} \code{\link{saveData}}
 importStudy <- function(fname) {
     ff = readLines(fname)
     ll = 1
@@ -230,10 +230,12 @@ importStudy <- function(fname) {
     return(list(data=all_data, annotations=annotations))
 }
 
-#' Import a study from a file in an NCviz object
+#' Import a study from a file to an NCviz object
+#'
+#' Import a study from a file in an NCviz object.
 #' @param nc_url URL of the NaviCell server
-#' @param cell_type Name of the data. If cell_type == "guess", it will be deduced from the file name by default
-#' @return An NCviz object
+#' @param cell_type Name of the data. If cell_type == "guess", it will be deduced from the file name by default.
+#' @return An NCviz object.
 #' @export
 #' @rdname importStudy
 importNCviz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", cell_type="guess") {
@@ -245,7 +247,6 @@ importNCviz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl"
     }
 
     ncviz = NCviz(nc_url=nc_url, cell_type=cell_type, annotations=dd$annotations, nc_data=dd$data)
-
     return(ncviz)
 }
 
