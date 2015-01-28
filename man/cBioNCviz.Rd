@@ -2,10 +2,11 @@
 % Please edit documentation in R/fetch_cBio.R
 \name{cBioNCviz}
 \alias{cBioNCviz}
-\title{Create NCViz object from a c-Bioportal study}
+\title{Create NCviz object from a c-Bioportal study}
 \usage{
 cBioNCviz(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
-  nc_url = "http://acsn.curie.fr/files/acsn_v1.0.owl", name = "")
+  nc_url = "http://acsn.curie.fr/files/acsn_v1.0.owl", name = "",
+  method = "genes")
 }
 \arguments{
 \item{study_id}{ID of the study to retrieve.}
@@ -15,6 +16,8 @@ cBioNCviz(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
 \item{nc_url}{URL of the NaviCell map}
 
 \item{name}{Name of the dataset. If not provided, the name of the study provided by cBioPortal will be used}
+
+\item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same, however the "genes" version is more detailed but slower and uses more memory.}
 }
 \value{
 An NCviz object containing the data of the study

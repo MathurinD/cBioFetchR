@@ -30,64 +30,102 @@ cBioConnect <- function(url="http://www.cbioportal.org/") {
 #'
 #' Get the list of c-Bioportal cancer studies
 #' @param conn A CGDS connexion object
+#' @param query A string specifying a subtype of cancer to look for (leave to "all" to list all available studies)
+#' @param case_sensitive A boolean specifying whether the query should be case sensitive (does not apply if query == "all")
 #' @return A data.frame with c-Bioportal studies ids (cancer_study_id), name (name) and description (description)
 #' @export
 #' @seealso \code{\link{cBioConnect}}, \code{\link{cgdsr::CGDS}}, \code{\link{cgdsr::getCancerStudies}}
-listStudies <- function(conn="http://www.cbioportal.org/") {
+listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sensitive=FALSE) {
     if (is.character(conn)) {
-        return(getCancerStudies(CGDS(conn)))
+        studies = getCancerStudies(CGDS(conn))
+    } else {
+        studies = getCancerStudies(conn)
     }
-    return(getCancerStudies(conn))
+
+    if (query == "all") {
+        return(studies)
+    } else {
+        result = data.frame()
+
+        for (rr in rownames(studies)) {
+            if ( (case_sensitive && grepl(query, studies$name[rr])) || grepl(tolower(query), tolower(studies$name[rr])) ) {
+                result = cbind(result, studies[rr,])
+            }
+        }
+        return(result)
+    }
 }
 
 #' Retrieve a dataset from c-Bioportal
 #'
-#' Retrieve a dataset from c-Bioportal and select the genes that are present on the NaviCell map
+#' Retrieve a dataset from c-Bioportal for all genes that are present on the NaviCell map. Displays whether the NaviCell map genes have been included or not.
 #' @param conn A CGDS connexion object
 #' @param profile_id List of ids of the profiles we want to retrieve
 #' @param case_id ID of the list of cases we want to retrieve
 #' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
-#' @return A list of data.frames containing the data for each gene, for all combination experiment x sample
+#' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.
+#' @return The format depends on the method :
+#' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
+#' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
 #' @export
 #' @seealso \code{\link{cBioStudy}}, \code{\link{importDataSet}}, \code{\link{saveData}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
 # TODO replace by the url of the map
-cBioDataSet <- function (conn, profile_id, case_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt") {
-    genes_data = list()
-    for (gene in getGenesList(genes_url)) {
-        dd = getProfileData(conn, gene, profile_id, case_id)
-        if (nrow(dd) != 0) {
-            colnames(dd) = gsub( gsub("[^_]$", "", case_id), "", colnames(dd) )
-            genes_data[[gene]] = dd
-            print(paste(gene, "included"))
-        } else {
-            print(paste(gene, "not included"))
+cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", method=method) {
+    if (method == "genes") {
+        genes_data = list()
+        for (gene in getGenesList(genes_url)) {
+            dd = getProfileData(conn, gene, profile_ids, case_id)
+            if (nrow(dd) != 0) {
+                colnames(dd) = gsub( paste0(st_id, "_"), "", colnames(dd) )
+                genes_data[[gene]] = dd
+                print(paste(gene, "included"))
+            } else {
+                print(paste(gene, "not included"))
+            }
         }
+        print("------------------ Import finished -------------------------")
+        return(genes_data)
+    } else if (method == "profiles") {
+        profiles_data = list()
+        genes = getGenesList(genes_url)
+        for (prof in profile_ids) {
+            pr_code = gsub(paste0(st_id, "_"), "", prof)
+            print(paste("Importing", pr_code, "data"))
+            profiles_data[[pr_code]] = t(getProfileData(conn, genes, prof, case_id))
+        }
+        print("------------------ Import finished -------------------------")
+        return(profiles_data)
+    } else {
+        stop("Invalid method, valids are 'profiles' and 'genes'")
     }
-    print("------------------ Import finished -------------------------")
-    return(genes_data)
 }
 
-#' Create NCViz object from a c-Bioportal study
+#' Create NCviz object from a c-Bioportal study
 #'
 #' Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
 #' @param study_id ID of the study to retrieve.
 #' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
 #' @param nc_url URL of the NaviCell map
 #' @param name Name of the dataset. If not provided, the name of the study provided by cBioPortal will be used
-#' @return An NCviz object containing the data of the study
+#' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same, however the "genes" version is more detailed but slower and uses more memory.
+#' @return An NCviz object containing the data of the study 
 #' @export
 #' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioStudy}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-cBioNCviz <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", name="") {
-    all_data = cBioStudy(study_id, genes_url)
+cBioNCviz <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", name="", method="genes") {
+    all_data = cBioStudy(study_id, genes_url, method=method)
     clinical_data = all_data$annotations
     genes_data = all_data$data
 
     studies = listStudies(conn)
     if (!study_id %in% studies$cancer_study_id) { stop(paste("The study", study_id, "does not exits on cBioPortal")) }
     if (name == "") { name = studies$name[which(studies$cancer_study_id==study_id)] }
-    ncviz = NCviz(nc_url=nc_url, cell_type=name, cbio_data=genes_data, annotations=clinical_data)
+    if (method == "genes") {
+        ncviz = NCviz(nc_url=nc_url, cell_type=name, cbio_gene_data=genes_data, annotations=clinical_data)
+    } else {
+        ncviz = NCviz(nc_url=nc_url, cell_type=name, nc_data=genes_data, annotations=clinical_data)
+    }
 
     return(ncviz)
 }
@@ -97,11 +135,14 @@ cBioNCviz <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.
 #' Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
 #' @param study_id ID of the study to retrieve.
 #' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
-#' @return A list containing the genes data as a list of dataframe (sample_id * profiling method, list indexed by gene names), and the annotations in a dataframe (sample_id * annotation_type)
+#' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.
+#' @return A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :
+#' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
+#' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
 #' @export
 #' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioNCviz}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt") {
+cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", method="genes") {
     conn = CGDS("http://www.cbioportal.org/")
 
     # Retrieve genetic profiles ids of all profiles
@@ -110,22 +151,101 @@ cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.
     pr_id = profiles$genetic_profile_id
 
     clinical_data = getClinicalData(conn, ca_id)
-    genes_data = cBioDataSet(conn, pr_id, ca_id, genes_url)
+    genes_data = cBioDataSet(conn, pr_id, ca_id, genes_url, method=method)
 
     return(list(data=genes_data, annotations=clinical_data))
 }
 
-# Save data set in a file, avoid having to download everything every time
-# TODO
-saveDataSet <- function(fname, dataset) {
-    print("Not implemented yet")
-    for (gene in names(data_set)) {
-    }
+getLine <- function(ll, split_char="\t") {
+    return(gsub('\"', '', unlist(strsplit(ll, split_char))))
 }
 
-# Import a data set from a file
-# TODO
-importDataSet  <- function(fname) {
-    fcontent = readLines(fname)
+#' Import a study from a file
+#'
+#' Import a study from a file with its annotations. A study consists of several experiments on the same set of genes and samples.
+#' For a study on m patients and n genes, the file must be formated as "M experiment_name", followed by a line with the list of samples ids, followed by n lines "genes_name data"
+#' The annotations start by "ANNOTATIONS study_name", followed by a line with the list of annotations names, followed by m lines "sample_name annotation"
+#' @param fname Name of the file
+#' @return A list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' @export
+#' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
+#' @seealso \code{\link{cBioStudy}} \code{\link{saveData}}
+importStudy <- function(fname) {
+    ff = readLines(fname)
+    ll = 1
+
+    all_data = list()
+    while (ll <= length(ff)) {
+        if (grepl("^M ", ff[ll])) {
+            # Import data
+            method = gsub("^M ", "", ff[ll])
+            samples = getLine(ff[ll+1])
+
+            ll = ll++2
+            profile_data = data.frame()
+            genes = c()
+            while(!grepl("^M ", ff[ll]) && !grepl("^ANNOTATIONS", ff[ll]) && ll <= length(ff)) {
+                dl = getLine(ff[ll])
+                genes = c(genes, dl[1])
+                profile_data = rbind( profile_data, suppressWarnings(as.numeric(dl[-1])) )
+
+                ll = ll+1
+            }
+            colnames(profile_data) = samples
+            rownames(profile_data) = genes
+            all_data[[method]] = profile_data
+        } else if (grepl("^ANNOTATIONS", ff[ll])) {
+            # Import annotations
+            annotations_names = getLine(ff[ll+1])
+            ## Each annotations has to be imported as an independent list, because rbind on data.frame creates factors and puts values different from row 1 to NA
+            annot_lists = list()
+            for (name in annotations_names) {
+                annot_lists[[name]] = c(0) # c() would not create the list slot
+            }
+
+            ll = ll+2
+            samples = c()
+            while(!grepl("^M ", ff[ll]) && !grepl("^ANNOTATIONS", ff[ll]) && ll <= length(ff)) {
+                al = getLine(ff[ll])
+                samples = c(samples, al[1])
+                # Gather each annotation for this sample
+                spl = al[1]
+                for (id in 2:length(al)) {
+                    annot = al[id]
+                    if ( !is.na(suppressWarnings(as.numeric(annot))) ) { annot = as.numeric(annot) }
+                    annot_lists[[id-1]] = c(annot_lists[[id-1]], annot)
+                }
+
+                ll = ll+1
+            }
+            for (nn in names(annot_lists)) {
+                annot_lists[[nn]] = annot_lists[[nn]][-1]
+            }
+            annotations = data.frame(annot_lists)
+            rownames(annotations) = samples
+            colnames(annotations) = annotations_names
+        }
+    }
+
+    return(list(data=all_data, annotations=annotations))
+}
+
+#' Import a study from a file in an NCviz object
+#' @param nc_url URL of the NaviCell server
+#' @param cell_type Name of the data. If cell_type == "guess", it will be deduced from the file name by default
+#' @return An NCviz object
+#' @export
+#' @rdname importStudy
+importNCviz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", cell_type="guess") {
+    dd = importStudy(fname)
+
+    # Try to guess cell_type from the name of the file
+    if (cell_type == "guess") {
+        cell_type = gsub("_", " ", sub(".txt$", "", gsub("([^/]/)*", "", fname)))
+    }
+
+    ncviz = NCviz(nc_url=nc_url, cell_type=cell_type, annotations=dd$annotations, nc_data=dd$data)
+
+    return(ncviz)
 }
 
