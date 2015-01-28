@@ -54,7 +54,6 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
         }
         return(result)
     }
-
 }
 
 #' Retrieve a dataset from c-Bioportal
@@ -102,7 +101,7 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curi
     }
 }
 
-#' Create NCViz object from a c-Bioportal study
+#' Create NCviz object from a c-Bioportal study
 #'
 #' Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
 #' @param study_id ID of the study to retrieve.
@@ -158,7 +157,7 @@ cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.
 }
 
 getLine <- function(ll, split_char="\t") {
-    return(gsub('\"', '', unlist(strsplit(split_char, ll))))
+    return(gsub('\"', '', unlist(strsplit(ll, split_char))))
 }
 
 #' Import a study from a file
@@ -170,11 +169,12 @@ getLine <- function(ll, split_char="\t") {
 #' @return A list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
 #' @export
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-#' @seealso \code{\link{cBioStudy}}
+#' @seealso \code{\link{cBioStudy}} \code{\link{saveData}}
 importStudy <- function(fname) {
     ff = readLines(fname)
     ll = 1
 
+    all_data = list()
     while (ll <= length(ff)) {
         if (grepl("^M ", ff[ll])) {
             # Import data
@@ -187,12 +187,13 @@ importStudy <- function(fname) {
             while(!grepl("^M ", ff[ll]) && !grepl("^ANNOTATIONS", ff[ll]) && ll <= length(ff)) {
                 dl = getLine(ff[ll])
                 genes = c(genes, dl[1])
-                profile_data = rbind( profile_data, as.numeric(dl[-1]) )
+                profile_data = rbind( profile_data, suppressWarnings(as.numeric(dl[-1])) )
 
                 ll = ll+1
             }
-            colnames(profiles_data) = samples
-            rownames(profiles_data) = genes
+            colnames(profile_data) = samples
+            rownames(profile_data) = genes
+            all_data[[method]] = profile_data
         } else if (grepl("^ANNOTATIONS", ff[ll])) {
             # Import annotations
             annotations_names = getLine(ff[ll+1])
@@ -212,15 +213,16 @@ importStudy <- function(fname) {
         }
     }
 
-    return(list(data=profile_data, annotations=annotations))
+    return(list(data=all_data, annotations=annotations))
 }
 
 #' Import a study from a file in an NCviz object
 #' @param nc_url URL of the NaviCell server
-#' @param cell_type Name of the data, will be deduced from the file name by default
+#' @param cell_type Name of the data. If cell_type == "guess", it will be deduced from the file name by default
 #' @return An NCviz object
+#' @export
 #' @rdname importStudy
-importNCViz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", cell_type="guess") {
+importNCviz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", cell_type="guess") {
     dd = importStudy(fname)
 
     # Try to guess cell_type from the name of the file
@@ -228,7 +230,7 @@ importNCViz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl"
         cell_type = gsub("_", " ", sub(".txt$", "", gsub("([^/]/)*", "", fname)))
     }
 
-    ncviz = NCViz(nc_url=nc_url, cell_type=cell_type, annotations=dd$annotations, nc_data=dd$data)
+    ncviz = NCviz(nc_url=nc_url, cell_type=cell_type, annotations=dd$annotations, nc_data=dd$data)
 
     return(ncviz)
 }

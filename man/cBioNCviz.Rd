@@ -2,7 +2,7 @@
 % Please edit documentation in R/fetch_cBio.R
 \name{cBioNCviz}
 \alias{cBioNCviz}
-\title{Create NCViz object from a c-Bioportal study}
+\title{Create NCviz object from a c-Bioportal study}
 \usage{
 cBioNCviz(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
   nc_url = "http://acsn.curie.fr/files/acsn_v1.0.owl", name = "",
