@@ -107,13 +107,16 @@ setMethod("initialize",
                     print("No conversion from navicell format to cbioportal format") # as it is useless
                 }
 
-                patients = colnames(.Object@nc_data[[1]])
-                group_all = data.frame( "all"=rep(1, length(patients)) )
-                rownames(group_all) = patients
-                if (length(annotations) == 0) {
-                    .Object@annotations = group_all
-                } else {
-                    .Object@annotations = data.frame(group_all, annotations)
+                # Add a group with all patients for NaviCell group visualisation, if not already present
+                if (! "all" %in% colnames(.Object@annotations) ) {
+                    patients = colnames(.Object@nc_data[[1]])
+                    group_all = data.frame( "all"=rep(1, length(patients)) )
+                    rownames(group_all) = patients
+                    if (length(annotations) == 0) {
+                        .Object@annotations = group_all
+                    } else {
+                        .Object@annotations = data.frame(group_all, annotations)
+                    }
                 }
 
                 return(.Object)

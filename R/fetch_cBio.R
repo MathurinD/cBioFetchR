@@ -197,17 +197,31 @@ importStudy <- function(fname) {
         } else if (grepl("^ANNOTATIONS", ff[ll])) {
             # Import annotations
             annotations_names = getLine(ff[ll+1])
+            ## Each annotations has to be imported as an independent list, because rbind on data.frame creates factors and puts values different from row 1 to NA
+            annot_lists = list()
+            for (name in annotations_names) {
+                annot_lists[[name]] = c(0) # c() would not create the list slot
+            }
 
             ll = ll+2
-            annotations = data.frame()
             samples = c()
             while(!grepl("^M ", ff[ll]) && !grepl("^ANNOTATIONS", ff[ll]) && ll <= length(ff)) {
                 al = getLine(ff[ll])
                 samples = c(samples, al[1])
-                annotations = rbind( annotations, al[-1] )
+                # Gather each annotation for this sample
+                spl = al[1]
+                for (id in 2:length(al)) {
+                    annot = al[id]
+                    if ( !is.na(suppressWarnings(as.numeric(annot))) ) { annot = as.numeric(annot) }
+                    annot_lists[[id-1]] = c(annot_lists[[id-1]], annot)
+                }
 
                 ll = ll+1
             }
+            for (nn in names(annot_lists)) {
+                annot_lists[[nn]] = annot_lists[[nn]][-1]
+            }
+            annotations = data.frame(annot_lists)
             rownames(annotations) = samples
             colnames(annotations) = annotations_names
         }
