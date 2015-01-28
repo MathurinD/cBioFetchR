@@ -19,7 +19,9 @@ cBioDataSet(conn, profile_ids, case_id,
 \item{profile_id}{List of ids of the profiles we want to retrieve}
 }
 \value{
-A list of data.frames containing the data for each gene, for all combination experiment x sample
+The format depends on the method :
+"genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
+"profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
 }
 \description{
 Retrieve a dataset from c-Bioportal for all genes that are present on the NaviCell map. Displays whether the NaviCell map genes have been included or not.

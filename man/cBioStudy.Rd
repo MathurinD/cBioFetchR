@@ -15,7 +15,9 @@ cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
 \item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.}
 }
 \value{
-A list containing the genes data as a list of dataframe (sample_id * profiling method, list indexed by gene names), and the annotations in a dataframe (sample_id * annotation_type)
+A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :
+"genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
+"profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
 }
 \description{
 Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
