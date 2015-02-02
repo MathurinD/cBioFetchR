@@ -4,14 +4,14 @@
 \alias{cBioNCviz}
 \title{Create NCviz object from a c-Bioportal study}
 \usage{
-cBioNCviz(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
+cBioNCviz(study_id, genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
   nc_url = "http://acsn.curie.fr/files/acsn_v1.0.owl", name = "",
   method = "genes")
 }
 \arguments{
 \item{study_id}{ID of the study to retrieve.}
 
-\item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
+\item{genes_list}{URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers}
 
 \item{nc_url}{URL of the NaviCell map}
 

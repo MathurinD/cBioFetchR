@@ -4,22 +4,20 @@
 \alias{cBioStudy}
 \title{Retrieve data and annotations from a c-Bioportal study}
 \usage{
-cBioStudy(study_id, genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
+cBioStudy(study_id, genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
   method = "genes")
 }
 \arguments{
 \item{study_id}{ID of the study to retrieve.}
 
-\item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
+\item{genes_list}{URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers}
 
 \item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.}
 }
 \value{
-A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :
-\itemize {
- \item "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
- \item "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
-}
+A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :\cr
+"genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)\cr
+"profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)\cr
 }
 \description{
 Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
