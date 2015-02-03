@@ -151,7 +151,12 @@ saveInFilesF <- function(obj, path="./", suffix="") {
     for (method in names(obj@nc_data)) {
         print(paste("Saving", method))
         ff = file(paste0(path, toFileName(obj@cell_type), "_", method, ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
-        write.table(obj@nc_data[[method]], ff, sep="\t")
+        writeLines(paste0(c("GENE", colnames(obj@nc_data[[method]])), collapse="\t"), ff)
+        #write.table(obj@nc_data[[method]], ff, sep="\t", col.names=FALSE)
+        for (gene in rownames(obj@nc_data[[method]])) {
+            writeLines(c(gene, as.character(obj@nc_data[[method]][gene,])), ff, sep="\t")
+            write("", ff)
+         }
         close(ff)
     }
     # Save annotations
