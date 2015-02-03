@@ -15,6 +15,7 @@ getGenesList <- function(url="http://acsn.curie.fr/files/acsn_v1.0.gmt"){
         acsn_list = c(acsn_list, unlist(strsplit(ll, "\t"))[-c(1, 2)])
     }
     acsn_genes = unique(acsn_list)
+    return(acsn_genes)
 }
 
 #' Create a connection to c-Bioportal API
@@ -60,6 +61,7 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
 #'
 #' Retrieve a dataset from c-Bioportal for all genes that are present on the NaviCell map. Displays whether the NaviCell map genes have been included or not.
 #' @param conn A CGDS connexion object
+#' @param study_id ID of the study to retrieve.
 #' @param profile_id List of ids of the profiles we want to retrieve
 #' @param case_id ID of the list of cases we want to retrieve
 #' @param genes_list URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers
@@ -71,7 +73,7 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
 #' @seealso \code{\link{cBioStudy}}, \code{\link{importDataSet}}, \code{\link{saveData}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
 # TODO replace by the url of the map
-cBioDataSet <- function (conn, profile_ids, case_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", method=method) {
+cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", method=method) {
     if (length(genes_list) == 1) {
         genes_list = getGenesList(genes_list)
     } else {
@@ -83,7 +85,7 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_list="http://acsn.cur
         for (gene in genes_list) {
             dd = getProfileData(conn, gene, profile_ids, case_id)
             if (nrow(dd) != 0) {
-                colnames(dd) = gsub( paste0(st_id, "_"), "", colnames(dd) )
+                colnames(dd) = gsub( paste0(study_id, "_"), "", colnames(dd) )
                 genes_data[[gene]] = dd
                 print(paste(gene, "included"))
                 imported = imported+1
@@ -97,7 +99,7 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_list="http://acsn.cur
     } else if (method == "profiles") {
         profiles_data = list()
         for (prof in profile_ids) {
-            pr_code = gsub(paste0(st_id, "_"), "", prof)
+            pr_code = gsub(paste0(study_id, "_"), "", prof)
             print(paste("Importing", pr_code, "data"))
             profiles_data[[pr_code]] = t(getProfileData(conn, genes_list, prof, case_id))
         }
@@ -159,7 +161,7 @@ cBioStudy <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0
     pr_id = profiles$genetic_profile_id
 
     clinical_data = getClinicalData(conn, ca_id)
-    genes_data = cBioDataSet(conn, pr_id, ca_id, genes_list, method=method)
+    genes_data = cBioDataSet(conn, study_id, pr_id, ca_id, genes_list, method=method)
 
     return(list(data=genes_data, annotations=clinical_data))
 }

@@ -4,11 +4,13 @@
 \alias{cBioDataSet}
 \title{Retrieve a dataset from c-Bioportal}
 \usage{
-cBioDataSet(conn, profile_ids, case_id,
+cBioDataSet(conn, study_id, profile_ids, case_id,
   genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt", method = method)
 }
 \arguments{
 \item{conn}{A CGDS connexion object}
+
+\item{study_id}{ID of the study to retrieve.}
 
 \item{case_id}{ID of the list of cases we want to retrieve}
 

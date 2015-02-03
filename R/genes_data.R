@@ -30,7 +30,8 @@ check_dataset <- function(object) {
         }
     } else if (cbio_profile) {
         if (nrow(object@annotations) != nrow(object@cbio_profile_data[[1]])) {
-            errors = c(errors, "There must be as many annotations as samples")
+            # Not all datasets are fully annotated
+            #errors = c(errors, "There must be as many annotations as samples")
         }
     }
 
