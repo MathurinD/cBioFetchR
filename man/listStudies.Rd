@@ -18,7 +18,7 @@ listStudies(conn = "http://www.cbioportal.org/", query = "all",
 A data.frame with c-Bioportal studies ids (cancer_study_id), name (name) and description (description)
 }
 \description{
-Get the list of c-Bioportal cancer studies
+Get the list of c-Bioportal cancer studies. Allow the specification of cancer types to limit the search.
 }
 \seealso{
 \code{\link{cBioConnect}}, \code{\link{cgdsr::CGDS}}, \code{\link{cgdsr::getCancerStudies}}

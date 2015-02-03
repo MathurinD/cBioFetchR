@@ -28,7 +28,7 @@ cBioConnect <- function(url="http://www.cbioportal.org/") {
 
 #' List of c-Bioportal studies
 #'
-#' Get the list of c-Bioportal cancer studies
+#' Get the list of c-Bioportal cancer studies. Allow the specification of cancer types to limit the search.
 #' @param conn A CGDS connexion object
 #' @param query A string specifying a subtype of cancer to look for (leave to "all" to list all available studies)
 #' @param case_sensitive A boolean specifying whether the query should be case sensitive (does not apply if query == "all")
@@ -47,9 +47,9 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
     } else {
         result = data.frame()
 
-        for (rr in rownames(studies)) {
+        for ( rr in as.numeric(rownames(studies)) ) {
             if ( (case_sensitive && grepl(query, studies$name[rr])) || grepl(tolower(query), tolower(studies$name[rr])) ) {
-                result = cbind(result, studies[rr,])
+                result = rbind(result, studies[rr,])
             }
         }
         return(result)
@@ -62,19 +62,24 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
 #' @param conn A CGDS connexion object
 #' @param profile_id List of ids of the profiles we want to retrieve
 #' @param case_id ID of the list of cases we want to retrieve
-#' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
+#' @param genes_list URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers
 #' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.
-#' @return The format depends on the method :
-#' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
-#' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' @return The format depends on the method :\cr
+#' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)\cr
+#' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)\cr
 #' @export
 #' @seealso \code{\link{cBioStudy}}, \code{\link{importDataSet}}, \code{\link{saveData}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
 # TODO replace by the url of the map
-cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", method=method) {
+cBioDataSet <- function (conn, profile_ids, case_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", method=method) {
+    if (length(genes_list) == 1) {
+        genes_list = getGenesList(genes_list)
+    } else {
+        genes_list = genes_list
+    }
     if (method == "genes") {
         genes_data = list()
-        for (gene in getGenesList(genes_url)) {
+        for (gene in genes_list) {
             dd = getProfileData(conn, gene, profile_ids, case_id)
             if (nrow(dd) != 0) {
                 colnames(dd) = gsub( paste0(st_id, "_"), "", colnames(dd) )
@@ -88,11 +93,10 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curi
         return(genes_data)
     } else if (method == "profiles") {
         profiles_data = list()
-        genes = getGenesList(genes_url)
         for (prof in profile_ids) {
             pr_code = gsub(paste0(st_id, "_"), "", prof)
             print(paste("Importing", pr_code, "data"))
-            profiles_data[[pr_code]] = t(getProfileData(conn, genes, prof, case_id))
+            profiles_data[[pr_code]] = t(getProfileData(conn, genes_list, prof, case_id))
         }
         print("------------------ Import finished -------------------------")
         return(profiles_data)
@@ -105,7 +109,7 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curi
 #'
 #' Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
 #' @param study_id ID of the study to retrieve.
-#' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
+#' @param genes_list URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers
 #' @param nc_url URL of the NaviCell map
 #' @param name Name of the dataset. If not provided, the name of the study provided by cBioPortal will be used
 #' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same, however the "genes" version is more detailed but slower and uses more memory.
@@ -113,8 +117,8 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_url="http://acsn.curi
 #' @export
 #' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioStudy}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-cBioNCviz <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", name="", method="genes") {
-    all_data = cBioStudy(study_id, genes_url, method=method)
+cBioNCviz <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", name="", method="genes") {
+    all_data = cBioStudy(study_id, genes_list, method=method)
     clinical_data = all_data$annotations
     genes_data = all_data$data
 
@@ -134,15 +138,15 @@ cBioNCviz <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.
 #'
 #' Retrieve data and annotations from a c-Bioportal study and select genes that are present on the NaviCell map
 #' @param study_id ID of the study to retrieve.
-#' @param genes_url URL pointing to the list of genes of interest (in .gmt format)
+#' @param genes_list URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers
 #' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.
-#' @return A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :
-#' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
-#' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' @return A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :\cr
+#' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)\cr
+#' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)\cr
 #' @export
 #' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioNCviz}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.gmt", method="genes") {
+cBioStudy <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", method="genes") {
     conn = CGDS("http://www.cbioportal.org/")
 
     # Retrieve genetic profiles ids of all profiles
@@ -151,7 +155,7 @@ cBioStudy <- function(study_id, genes_url="http://acsn.curie.fr/files/acsn_v1.0.
     pr_id = profiles$genetic_profile_id
 
     clinical_data = getClinicalData(conn, ca_id)
-    genes_data = cBioDataSet(conn, pr_id, ca_id, genes_url, method=method)
+    genes_data = cBioDataSet(conn, pr_id, ca_id, genes_list, method=method)
 
     return(list(data=genes_data, annotations=clinical_data))
 }
@@ -163,13 +167,13 @@ getLine <- function(ll, split_char="\t") {
 #' Import a study from a file
 #'
 #' Import a study from a file with its annotations. A study consists of several experiments on the same set of genes and samples.
-#' For a study on m patients and n genes, the file must be formated as "M experiment_name", followed by a line with the list of samples ids, followed by n lines "genes_name data"
-#' The annotations start by "ANNOTATIONS study_name", followed by a line with the list of annotations names, followed by m lines "sample_name annotation"
+#' For a study on m patients and n genes, the file must be formated as "M experiment_name", followed by a line with the list of samples ids, followed by n lines "genes_name data".
+#' The annotations start by "ANNOTATIONS study_name", followed by a line with the list of annotations names, followed by m lines "sample_name annotation".
 #' @param fname Name of the file
-#' @return A list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+#' @return A list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type).
 #' @export
+#' @seealso \code{\link{cBioStudy}}, \code{\link{saveData}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-#' @seealso \code{\link{cBioStudy}} \code{\link{saveData}}
 importStudy <- function(fname) {
     ff = readLines(fname)
     ll = 1
@@ -226,14 +230,15 @@ importStudy <- function(fname) {
             colnames(annotations) = annotations_names
         }
     }
-
     return(list(data=all_data, annotations=annotations))
 }
 
-#' Import a study from a file in an NCviz object
+#' Import a study from a file to an NCviz object
+#'
+#' Import a study from a file in an NCviz object.
 #' @param nc_url URL of the NaviCell server
-#' @param cell_type Name of the data. If cell_type == "guess", it will be deduced from the file name by default
-#' @return An NCviz object
+#' @param cell_type Name of the data. If cell_type == "guess", it will be deduced from the file name by default.
+#' @return An NCviz object.
 #' @export
 #' @rdname importStudy
 importNCviz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", cell_type="guess") {
@@ -245,7 +250,6 @@ importNCviz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl"
     }
 
     ncviz = NCviz(nc_url=nc_url, cell_type=cell_type, annotations=dd$annotations, nc_data=dd$data)
-
     return(ncviz)
 }
 

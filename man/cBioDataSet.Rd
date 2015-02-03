@@ -5,23 +5,23 @@
 \title{Retrieve a dataset from c-Bioportal}
 \usage{
 cBioDataSet(conn, profile_ids, case_id,
-  genes_url = "http://acsn.curie.fr/files/acsn_v1.0.gmt", method = method)
+  genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt", method = method)
 }
 \arguments{
 \item{conn}{A CGDS connexion object}
 
 \item{case_id}{ID of the list of cases we want to retrieve}
 
-\item{genes_url}{URL pointing to the list of genes of interest (in .gmt format)}
+\item{genes_list}{URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers}
 
 \item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.}
 
 \item{profile_id}{List of ids of the profiles we want to retrieve}
 }
 \value{
-The format depends on the method :
-"genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)
-"profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)
+The format depends on the method :\cr
+"genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)\cr
+"profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)\cr
 }
 \description{
 Retrieve a dataset from c-Bioportal for all genes that are present on the NaviCell map. Displays whether the NaviCell map genes have been included or not.

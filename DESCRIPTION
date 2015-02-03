@@ -7,3 +7,4 @@ Author: Mathurin Dorel
 Maintainer: <mathurin.dorel@curie.fr>
 Description: RncMapping allows the import of various biological data (protein expression levels, CNV, mutations, ...) and maps them in a relevant maner on a NaviCell map.
 License: TODO
+Depends : R (>= 3.1.0)
