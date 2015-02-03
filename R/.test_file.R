@@ -1,7 +1,7 @@
 detach("package:RncMapping", unload=TRUE)
 library(RncMapping)
 
-conn = cBioConnect()
+#conn = cBioConnect()
 
 # Selection of the study id
 studies = listStudies(conn, "leukemia")

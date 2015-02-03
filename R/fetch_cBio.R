@@ -78,6 +78,7 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_list="http://acsn.cur
         genes_list = genes_list
     }
     if (method == "genes") {
+        imported = 0
         genes_data = list()
         for (gene in genes_list) {
             dd = getProfileData(conn, gene, profile_ids, case_id)
@@ -85,11 +86,13 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_list="http://acsn.cur
                 colnames(dd) = gsub( paste0(st_id, "_"), "", colnames(dd) )
                 genes_data[[gene]] = dd
                 print(paste(gene, "included"))
+                imported = imported+1
             } else {
                 print(paste(gene, "not included"))
             }
         }
         print("------------------ Import finished -------------------------")
+        print(paste0(imported, "/", length(genes_list), " genes successfully imported"))
         return(genes_data)
     } else if (method == "profiles") {
         profiles_data = list()
@@ -99,6 +102,7 @@ cBioDataSet <- function (conn, profile_ids, case_id, genes_list="http://acsn.cur
             profiles_data[[pr_code]] = t(getProfileData(conn, genes_list, prof, case_id))
         }
         print("------------------ Import finished -------------------------")
+        print(paste0(ncol(profiles_data[[pr_code]]), "/", length(genes_list), " genes successfully imported"))
         return(profiles_data)
     } else {
         stop("Invalid method, valids are 'profiles' and 'genes'")
