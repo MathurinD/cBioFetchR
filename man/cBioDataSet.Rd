@@ -5,7 +5,8 @@
 \title{Retrieve a dataset from c-Bioportal}
 \usage{
 cBioDataSet(conn, study_id, profile_ids, case_id,
-  genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt", method = method)
+  genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
+  method = "profiles")
 }
 \arguments{
 \item{conn}{A CGDS connexion object}
@@ -16,7 +17,7 @@ cBioDataSet(conn, study_id, profile_ids, case_id,
 
 \item{genes_list}{URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers}
 
-\item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.}
+\item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same, however the "genes" version is more detailed but much slower and uses more memory.}
 
 \item{profile_id}{List of ids of the profiles we want to retrieve}
 }

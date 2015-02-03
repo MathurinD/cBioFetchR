@@ -20,20 +20,20 @@ check_dataset <- function(object) {
     if (length(object@nc_url) == 0) {
         errors = c(errors, "A NaviCell map URL must be provided")
     }
-    if (nc_data) {
-        if (nrow(object@annotations) != ncol(object@nc_data[[1]])) {
-            errors = c(errors, "There must be as many annotations as samples")
-        }
-    } else if (cbio_gene) {
-        if (nrow(object@annotations) != nrow(object@cbio_gene_data[[1]])) {
-            errors = c(errors, "There must be as many annotations as samples")
-        }
-    } else if (cbio_profile) {
-        if (nrow(object@annotations) != nrow(object@cbio_profile_data[[1]])) {
-            # Not all datasets are fully annotated
+    # Not all datasets are fully annotated
+    #if (nc_data) {
+        #if (nrow(object@annotations) != ncol(object@nc_data[[1]])) {
             #errors = c(errors, "There must be as many annotations as samples")
-        }
-    }
+        #}
+    #} else if (cbio_gene) {
+        #if (nrow(object@annotations) != nrow(object@cbio_gene_data[[1]])) {
+            #errors = c(errors, "There must be as many annotations as samples")
+        #}
+    #} else if (cbio_profile) {
+        #if (nrow(object@annotations) != nrow(object@cbio_profile_data[[1]])) {
+            #errors = c(errors, "There must be as many annotations as samples")
+        #}
+    #}
 
 
     if (length(errors) == 0) TRUE else errors

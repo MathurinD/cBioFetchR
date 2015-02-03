@@ -5,7 +5,7 @@
 \title{Retrieve data and annotations from a c-Bioportal study}
 \usage{
 cBioStudy(study_id, genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
-  method = "genes")
+  method = "profiles")
 }
 \arguments{
 \item{study_id}{ID of the study to retrieve.}
