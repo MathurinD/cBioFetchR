@@ -20,21 +20,6 @@ check_dataset <- function(object) {
     if (length(object@nc_url) == 0) {
         errors = c(errors, "A NaviCell map URL must be provided")
     }
-    # Not all datasets are fully annotated
-    #if (nc_data) {
-        #if (nrow(object@annotations) != ncol(object@nc_data[[1]])) {
-            #errors = c(errors, "There must be as many annotations as samples")
-        #}
-    #} else if (cbio_gene) {
-        #if (nrow(object@annotations) != nrow(object@cbio_gene_data[[1]])) {
-            #errors = c(errors, "There must be as many annotations as samples")
-        #}
-    #} else if (cbio_profile) {
-        #if (nrow(object@annotations) != nrow(object@cbio_profile_data[[1]])) {
-            #errors = c(errors, "There must be as many annotations as samples")
-        #}
-    #}
-
 
     if (length(errors) == 0) TRUE else errors
 }
@@ -109,14 +94,24 @@ setMethod("initialize",
                 }
 
                 # Add a group with all patients for NaviCell group visualisation, if not already present
+                # Add NAs when annotations is not present for a patient
                 if (! "all" %in% colnames(.Object@annotations) ) {
                     patients = colnames(.Object@nc_data[[1]])
                     group_all = data.frame( "all"=rep(1, length(patients)) )
-                    rownames(group_all) = patients
                     if (length(annotations) == 0) {
+                        rownames(group_all) = patients
                         .Object@annotations = group_all
                     } else {
-                        .Object@annotations = data.frame(group_all, annotations)
+                        if (all( patients %in% rownames(.Object@annotations) )) {
+                            .Object@annotations = data.frame(group_all, annotations)
+                        } else { # Add missing patients annotations as NA
+                            to_add = patients[!patients %in% rownames(.Object@annotations)]
+                            missing_annots = matrix(rep(NA, length(to_add) * ncol(.Object@annotations)), nrow=length(to_add))
+                            rownames(missing_annots) = to_add
+                            colnames(missing_annots) = colnames(.Object@annotations)
+                            rownames(group_all) = c(rownames(.Object@annotations), rownames(missing_annots))
+                            .Object@annotations = data.frame(group_all, rbind(.Object@annotations, missing_annots))
+                        }
                     }
                 }
 
