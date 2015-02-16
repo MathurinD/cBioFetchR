@@ -137,17 +137,16 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
 #' @param nc_url URL of the NaviCell map
 #' @param name Name of the dataset. If not provided, the name of the study provided by cBioPortal will be used
 #' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same, however the "genes" version is more detailed but much slower and uses more memory.
+#' @param url URL to the CGDS API
 #' @return An NCviz object containing the data of the study 
 #' @export
 #' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioStudy}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-cBioNCviz <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", name="", method="profiles") {
-    all_data = cBioStudy(study_id, genes_list, method=method)
+cBioNCviz <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl", name="", method="profiles", url="http://www.cbioportal.org/") {
+    all_data = cBioStudy(study_id, genes_list, method=method, url=url)
     clinical_data = all_data$annotations
     genes_data = all_data$data
 
-    studies = listStudies(conn)
-    if (!study_id %in% studies$cancer_study_id) { stop(paste("The study", study_id, "does not exits on cBioPortal")) }
     if (name == "") { name = studies$name[which(studies$cancer_study_id==study_id)] }
     if (method == "genes") {
         ncviz = NCviz(nc_url=nc_url, cell_type=name, cbio_gene_data=genes_data, annotations=clinical_data)
@@ -164,14 +163,17 @@ cBioNCviz <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0
 #' @param study_id ID of the study to retrieve.
 #' @param genes_list URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers
 #' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.
+#' @param url URL to the CGDS API
 #' @return A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :\cr
 #' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)\cr
 #' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)\cr
 #' @export
 #' @seealso \code{\link{listStudies}}, \code{\link{cBioDataSet}}, \code{\link{cBioNCviz}}
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
-cBioStudy <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", method="profiles") {
-    conn = CGDS("http://www.cbioportal.org/")
+cBioStudy <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt", method="profiles", url="http://www.cbioportal.org/") {
+    conn = cBioConnect(url)
+    studies = listStudies(conn)
+    if (!study_id %in% studies$cancer_study_id) { stop(paste("The study", study_id, "does not exist on", url)) }
 
     # Retrieve genetic profiles ids of all profiles
     ca_id = paste0(study_id, "_all")
@@ -209,7 +211,7 @@ importStudy <- function(fname) {
             method = gsub("^M ", "", ff[ll])
             samples = getLine(ff[ll+1])
 
-            ll = ll++2
+            ll = ll+2
             profile_data = data.frame()
             genes = c()
             while(!grepl("^M ", ff[ll]) && !grepl("^ANNOTATIONS", ff[ll]) && ll <= length(ff)) {

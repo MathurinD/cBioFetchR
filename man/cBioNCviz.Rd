@@ -6,7 +6,7 @@
 \usage{
 cBioNCviz(study_id, genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
   nc_url = "http://acsn.curie.fr/files/acsn_v1.0.owl", name = "",
-  method = "profiles")
+  method = "profiles", url = "http://www.cbioportal.org/")
 }
 \arguments{
 \item{study_id}{ID of the study to retrieve.}
@@ -18,6 +18,8 @@ cBioNCviz(study_id, genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
 \item{name}{Name of the dataset. If not provided, the name of the study provided by cBioPortal will be used}
 
 \item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same, however the "genes" version is more detailed but much slower and uses more memory.}
+
+\item{url}{URL to the CGDS API}
 }
 \value{
 An NCviz object containing the data of the study

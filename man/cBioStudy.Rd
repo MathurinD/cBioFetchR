@@ -5,7 +5,7 @@
 \title{Retrieve data and annotations from a c-Bioportal study}
 \usage{
 cBioStudy(study_id, genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
-  method = "profiles")
+  method = "profiles", url = "http://www.cbioportal.org/")
 }
 \arguments{
 \item{study_id}{ID of the study to retrieve.}
@@ -13,6 +13,8 @@ cBioStudy(study_id, genes_list = "http://acsn.curie.fr/files/acsn_v1.0.gmt",
 \item{genes_list}{URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers}
 
 \item{method}{String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same but the "genes" version is more detailed.}
+
+\item{url}{URL to the CGDS API}
 }
 \value{
 A list containing the annotations in a dataframe (sample_id * annotation_type) and the data. The format of the data depends on the method :\cr
