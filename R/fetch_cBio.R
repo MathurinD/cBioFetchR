@@ -146,6 +146,7 @@ cBioNCviz <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0
     all_data = cBioStudy(study_id, genes_list, method=method, url=url)
     clinical_data = all_data$annotations
     genes_data = all_data$data
+    studies = getCancerStudies(cBioConnect(url))
 
     if (name == "") { name = studies$name[which(studies$cancer_study_id==study_id)] }
     if (method == "genes") {
