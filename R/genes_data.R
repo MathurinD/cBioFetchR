@@ -157,7 +157,7 @@ saveInFilesF <- function(obj, path="./", suffix="") {
     }
     # Save annotations
     ff = file(paste0(path, toFileName(obj@cell_type), "_Annotations", ifelse(suffix=="", "", "_"), suffix, ".tsv"), "w")
-    writeLines(paste0("NAME", colnames(obj@annotations), collapse="\t"), ff)
+    writeLines(paste0(c("NAME", colnames(obj@annotations)), collapse="\t"), ff)
     for (spl in rownames(obj@annotations)) {
         writeLines(c(spl, as.character(obj@annotations[spl,])), ff, sep="\t")
         write("", ff)
