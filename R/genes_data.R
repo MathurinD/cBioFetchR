@@ -90,7 +90,7 @@ setMethod("initialize",
                     }
                 } else {
                     .Object@cbio_gene_data[[length(rownames(.Object@nc_data[[1]]))]] = 0
-                    print("No conversion from navicell format to cbioportal format") # as it is useless
+                    print("Data already in NaviCell format, no conversion needed") # as it is useless
                 }
 
                 # Add a group with all patients for NaviCell group visualisation, if not already present

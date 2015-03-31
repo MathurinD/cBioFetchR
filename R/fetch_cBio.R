@@ -66,6 +66,7 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
 #' @param case_id ID of the list of cases we want to retrieve
 #' @param genes_list URL pointing to the list of genes of interest (in .gmt format), or a list of genes HUGO identifiers
 #' @param method String, either "genes" or "profiles", specifying whether the data must be fetched by genes or by profiles. The result is the same, however the "genes" version is more detailed but much slower and uses more memory.
+#' @details The method "profiles" does not work it there are too many samples
 #' @return The format depends on the method :\cr
 #' "genes" : a list (indexed by gene names) of dataframes (sample_id * profiling method)\cr
 #' "profiles" : a list (indexed by profiling methods) of dataframes (genes * samples), and the annotations in a dataframe (sample_id * annotation_type)\cr
@@ -101,7 +102,12 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
         for (prof in profile_ids) {
             pr_code = gsub(paste0(study_id, "_"), "", prof)
             print(paste("Importing", pr_code, "data"))
-            MAX_GENES = 1000 # Maximum number of genes per request
+            caseList = getCaseLists(conn, study_id)
+            nSamples = length(unlist(strsplit(caseList$case_ids[caseList$case_list_id == case_id], " ")))
+            MAX_GENES = 90000 / nSamples # Maximum number of genes per request, otherwise the server raises an error
+            if (MAX_GENES < 1) {
+                stop("Too many samples to use \"profiles\" method to get the data, use \"genes\" instead")
+            }
             if (length(genes_list) < MAX_GENES) {
                 dd = getProfileData(conn, genes_list, prof, case_id)
             } else {
@@ -181,7 +187,12 @@ cBioStudy <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0
     profiles = getGeneticProfiles(conn, study_id)
     pr_id = profiles$genetic_profile_id
 
-    clinical_data = getClinicalData(conn, ca_id)
+    clinical_data = list()
+    tryCatch({
+        clinical_data = getClinicalData(conn, ca_id)
+    }, error = function(e) {
+        warning("Error when trying to retrieve clinical data, result is empty clinical data")
+    })
     genes_data = cBioDataSet(conn, study_id, pr_id, ca_id, genes_list, method=method)
 
     return(list(data=genes_data, annotations=clinical_data))
