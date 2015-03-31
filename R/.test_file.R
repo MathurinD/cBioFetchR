@@ -16,3 +16,5 @@ visualizer = cBioNCviz(ov_id, genes_list="file:///bioinfo/users/mdorel/ACSN_cBio
 saveInFiles(visualizer) # For NaviCell export
 saveData(visualizer) # For easy sharing
 
+# For testing
+# genes_list="http://acsn.curie.fr/files/acsn_v1.0.gmt";nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl";name="";method="profiles";url="http://www.cbioportal.org/";study_id = ov_id

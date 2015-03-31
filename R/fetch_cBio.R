@@ -15,6 +15,9 @@ getGenesList <- function(url="http://acsn.curie.fr/files/acsn_v1.0.gmt"){
         acsn_list = c(acsn_list, unlist(strsplit(ll, "\t"))[-c(1, 2)])
     }
     acsn_genes = unique(acsn_list)
+    for (ii in 1:length(acsn_genes)) {
+        acsn_genes[ii] = gsub(" ", "_", acsn_genes[ii])
+    }
     return(acsn_genes)
 }
 
@@ -104,7 +107,7 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
             print(paste("Importing", pr_code, "data"))
             caseList = getCaseLists(conn, study_id)
             nSamples = length(unlist(strsplit(caseList$case_ids[caseList$case_list_id == case_id], " ")))
-            MAX_GENES = 90000 / nSamples # Maximum number of genes per request, otherwise the server raises an error
+            MAX_GENES = floor(90000 / nSamples) # Maximum number of genes per request, otherwise the server raises an error
             if (MAX_GENES < 1) {
                 stop("Too many samples to use \"profiles\" method to get the data, use \"genes\" instead")
             }
@@ -122,7 +125,8 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
                 sub_lists[[lsl+1]] = genes_list[(1+MAX_GENES*lsl):length(genes_list)]
                 dd = matrix()
                 for (subl in sub_lists) {
-                    dd = cbind(dd, getProfileData(conn, subl, prof, case_id))
+                    pdd = getProfileData(conn, subl, prof, case_id)
+                    dd = cbind(dd, pdd)
                 }
             }
             profiles_data[[pr_code]] = t(dd)
