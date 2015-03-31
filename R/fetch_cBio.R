@@ -128,6 +128,7 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
                     pdd = getProfileData(conn, subl, prof, case_id)
                     dd = cbind(dd, pdd)
                 }
+                dd = dd[,-1]
             }
             profiles_data[[pr_code]] = t(dd)
         }
