@@ -9,16 +9,20 @@ ACSN_genes = list("global"="http://acsn.curie.fr/files/acsn_v1.0", "survival"="h
 # TODO replace by the getHugoList of NaviCell R API
 # @param url URL pointing to a list of genes
 getGenesList <- function(url="http://acsn.curie.fr/files/acsn_v1.0.gmt"){
-    acsn_page = getURL(url)
-    acsn_list = c()
-    for ( ll in unlist(strsplit(acsn_page, "\n")) ) {
-        acsn_list = c(acsn_list, unlist(strsplit(ll, "\t"))[-c(1, 2)])
+    if (grepl("://", url)) {
+        gmt_page = getURL(url)
+    } else {
+        gmt_page = readLines(url)
     }
-    acsn_genes = unique(acsn_list)
-    for (ii in 1:length(acsn_genes)) {
-        acsn_genes[ii] = gsub(" ", "_", acsn_genes[ii])
+    gmt_list = c()
+    for ( ll in unlist(strsplit(gmt_page, "\n")) ) {
+        gmt_list = c(gmt_list, unlist(strsplit(ll, "\t"))[-c(1, 2)])
     }
-    return(acsn_genes)
+    gmt_genes = unique(gmt_list)
+    for (ii in 1:length(gmt_genes)) {
+        gmt_genes[ii] = gsub(" ", "_", gmt_genes[ii])
+    }
+    return(gmt_genes)
 }
 
 #' Create a connection to c-Bioportal API
