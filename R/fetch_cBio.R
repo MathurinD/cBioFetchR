@@ -94,6 +94,9 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
             dd = getProfileData(conn, gene, profile_ids, case_id)
             if (nrow(dd) != 0) {
                 colnames(dd) = gsub( paste0(study_id, "_"), "", colnames(dd) )
+                if (ncol(dd) == 1) { # Colname will be gene instead of processing
+                    colnames(dd) = gsub( paste0(study_id, "_"), "", profile_ids )
+                }
                 genes_data[[gene]] = dd
                 print(paste(gene, "included"))
                 imported = imported+1
