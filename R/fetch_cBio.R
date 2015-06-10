@@ -57,7 +57,7 @@ listStudies <- function(conn="http://www.cbioportal.org/", query="all", case_sen
 
         for ( rr in as.numeric(rownames(studies)) ) {
             if ( (case_sensitive && grepl(query, studies$name[rr])) || grepl(tolower(query), tolower(studies$name[rr])) ) {
-                result = rbind(result, studies[rr,])
+                result = rbind(result, studies[rr,1:2])
             }
         }
         return(result)
