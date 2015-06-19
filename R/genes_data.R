@@ -171,7 +171,7 @@ setGeneric("saveInFiles", saveInFilesF)
 #' @param obj NCviz object
 #' @param path Folder where the files must be save, can be used to append a prefix to the filename
 #' @param suffix Suffix appended to the filename
-#' @return Produces .tsv files, no R output.
+#' @return Produces .txt files, and invisibly return the name of the file
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
 #' @export
 #' @rdname saveInFiles
@@ -179,7 +179,8 @@ setMethod("saveInFiles", "NCviz", saveInFilesF)
 
 
 saveDataF <- function(obj, path="./", suffix="") {
-    ff = file(paste0(path, toFileName(obj@cell_type), ifelse(suffix=="", "", "_"), suffix, ".txt"), "w")
+    fname = paste0(path, toFileName(obj@cell_type), ifelse(suffix=="", "", "_"), suffix, ".txt")
+    ff = file(fname, "w")
     for (method in names(obj@nc_data)) {
         # Save data
         print(paste("Saving", method))
@@ -190,6 +191,7 @@ saveDataF <- function(obj, path="./", suffix="") {
     writeLines(paste0("ANNOTATIONS"), ff)
     write.table(obj@annotations, ff, sep="\t")
     close(ff)
+    invisible(fname)
 }
 setGeneric("saveData", saveDataF)
 #' Save the data in one files.
@@ -200,7 +202,7 @@ setGeneric("saveData", saveDataF)
 #' @param obj NCviz object
 #' @param path Folder where the files must be save, can be used to append a prefix to the filename
 #' @param suffix Suffix appended to the filename
-#' @return Produces a .txt file, no R output.
+#' @return Produces .txt files, and invisibly return the name of the file
 #' @author Mathurin Dorel \email{mathurin.dorel@@curie.fr}
 #' @export
 #' @rdname saveData
