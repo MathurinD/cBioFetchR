@@ -15,7 +15,7 @@
 \item{suffix}{Suffix appended to the filename}
 }
 \value{
-Produces .tsv files, no R output.
+Produces .txt files, and invisibly return the name of the file
 }
 \description{
 Save the data from a NCviz object in several files, one .tsv file per profiling method. Each file can then be imported into NaviCell.
