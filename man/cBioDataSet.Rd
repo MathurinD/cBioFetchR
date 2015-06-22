@@ -29,6 +29,9 @@ The format depends on the method :\cr
 \description{
 Retrieve a dataset from c-Bioportal for all genes that are present on the NaviCell map. Displays whether the NaviCell map genes have been included or not.
 }
+\details{
+The method "profiles" does not work it there are too many samples
+}
 \author{
 Mathurin Dorel \email{mathurin.dorel@curie.fr}
 }

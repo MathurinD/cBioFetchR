@@ -15,7 +15,7 @@
 \item{suffix}{Suffix appended to the filename}
 }
 \value{
-Produces a .txt file, no R output.
+Produces .txt files, and invisibly return the name of the file
 }
 \description{
 Save the data in a .txt files. The file cannot be directly exported to NaviCell but can be imported with the RncMapping package. For easily commucating data.
