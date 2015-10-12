@@ -7,4 +7,8 @@ Author: Mathurin Dorel
 Maintainer: <mathurin.dorel@curie.fr>
 Description: cBioFetchR allows the import of various biological data (protein expression levels, CNV, mutations, ...) from cBioPortal and export them in a format that can be exported to NaviCell, or used by the navicom Python package
 License: LGPL
-Depends : R (>= 3.1.0)
+Depends : R (>= 3.1.0),
+          cgdsr (>= 1.1.30),
+          methods (>= 1.6.1),
+          RCurl (>= 1.95)
+
