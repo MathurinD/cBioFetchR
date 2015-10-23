@@ -87,6 +87,9 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
     } else {
         genes_list = genes_list
     }
+    if (length(genes_list) < 1) {
+        stop("Empty gene list provided, cannot extract data.")
+    }
     if (method == "genes") {
         imported = 0
         genes_data = list()
@@ -114,7 +117,7 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
             print(paste("Importing", pr_code, "data"))
             caseList = getCaseLists(conn, study_id)
             nSamples = length(unlist(strsplit(caseList$case_ids[caseList$case_list_id == case_id], " ")))
-            MAX_GENES = floor(90000 / nSamples) # Maximum number of genes per request, otherwise the server raises an error
+            MAX_GENES = floor(5000 / nSamples) # Maximum number of genes per request, otherwise the server raises an error
             if (MAX_GENES < 1) {
                 stop("Too many samples to use \"profiles\" method to get the data, use \"genes\" instead")
             }
@@ -133,7 +136,9 @@ cBioDataSet <- function (conn, study_id, profile_ids, case_id, genes_list="http:
                 dd = matrix()
                 for (subl in sub_lists) {
                     pdd = getProfileData(conn, subl, prof, case_id)
-                    dd = cbind(dd, pdd)
+                    if (nrow(pdd) > 0) { # Rounding can lead to empty sublist
+                        dd = cbind(dd, pdd)
+                    }
                 }
                 dd = dd[,-1]
             }

@@ -139,6 +139,7 @@ toFileName <- function(string) {
     string = gsub(",? ", "_", string)
     string = gsub("\\(|\\)", "", string)
     string = gsub(",", "_", string)
+    string = gsub("/", "_", string)
     return(string)
 }
 
@@ -179,6 +180,9 @@ setMethod("saveInFiles", "NCviz", saveInFilesF)
 
 
 saveDataF <- function(obj, path="./", suffix="") {
+    if (substr(path, nchar(path), nchar(path)) != "/") {
+        path = paste0(path, "/")
+    }
     fname = paste0(path, toFileName(obj@cell_type), ifelse(suffix=="", "", "_"), suffix, ".txt")
     ff = file(fname, "w")
     for (method in names(obj@nc_data)) {
