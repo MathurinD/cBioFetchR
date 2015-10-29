@@ -203,6 +203,10 @@ cBioStudy <- function(study_id, genes_list="http://acsn.curie.fr/files/acsn_v1.0
     ca_id = paste0(study_id, "_all")
     profiles = getGeneticProfiles(conn, study_id)
     pr_id = profiles$genetic_profile_id
+    invalid_profiles = grep(paste0("^", study_id, "$"), pr_id) # Some studies have this strange field
+    if (length(invalid_profiles) > 0) {
+        pr_id = pr_id[-invalid_profiles]
+    }
 
     clinical_data = list()
     tryCatch({
