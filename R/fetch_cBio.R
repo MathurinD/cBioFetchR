@@ -1,6 +1,7 @@
 #' @import cgdsr
 # @importFrom cgdsr CGDS getCancerStudies getProfileData getCaseLists
 #' @import RCurl
+#' @import methods
 
 # Gene lists of the ACSN maps (.owl for the map, .gmt for the gene list)
 ACSN_genes = list("global"="http://acsn.curie.fr/files/acsn_v1.0", "survival"="http://acsn.curie.fr/files/survival_v1.0", "apoptosis"="http://acsn.curie.fr/files/apoptosis_v1.0", "cell_motility"="http://acsn.curie.fr/files/emtcellmotility_v1.0", "cell_cycle"="http://acsn.curie.fr/files/cellcycle_v1.0", "DNA_repair"="http://acsn.curie.fr/files/dnarepair_v1.0")
@@ -296,7 +297,7 @@ importNCviz <- function(fname, nc_url="http://acsn.curie.fr/files/acsn_v1.0.owl"
 
     # Try to guess cell_type from the name of the file
     if (cell_type == "guess") {
-        cell_type = gsub("_", " ", sub(".txt$", "", gsub("([^/]/)*", "", fname)))
+        cell_type = gsub("_", " ", sub(".txt$", "", gsub("([^/]/)*", "", basename(fname))))
     }
 
     ncviz = NCviz(nc_url=nc_url, cell_type=cell_type, annotations=dd$annotations, nc_data=dd$data)
